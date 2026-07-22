@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#FFD200" />
+<title>주말토리 · 이번 주말 뭐하지?</title>
+
+<!-- 브랜드 폰트: Pretendard (없으면 시스템 폰트로 자동 대체) -->
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+
+<style>
+  /* =========================================================
+     주말토리 NFC 키링 랜딩페이지 — v2 (브랜드 리디자인)
+     - 실제 주말토리 캐릭터 + 옐로우 톤앤매너
+     - 시간대별 캐릭터/배경 전환
+     - 타로카드 랜덤뽑기 · 버킷리스트 (기기 저장)
+     ========================================================= */
+
+  :root {
+    --yellow: #FFD200;      /* 메인: 토리 옐로우 */
+    --yellow-deep: #FFC400;
+    --coral: #FF6446;       /* 포인트/CTA */
+    --coral-deep: #F04E30;
+    --lime: #C6F542;
+    --pink: #FFB2EA;
+    --green: #12B24A;
+    --ink: #1E1A12;         /* 카드 위 텍스트(항상 어둡게) */
+    --ink-soft: #8A8172;
+    --on-sky: #1E1A12;      /* 하늘 배경 위 텍스트(밤엔 밝게) */
+    --on-sky-soft: #8A8172;
+    --paper: #FFFFFF;
+    --cream: #FFF8EC;
+
+    --shadow: 0 12px 30px rgba(30, 26, 18, 0.13);
+    --shadow-sm: 0 5px 16px rgba(30, 26, 18, 0.10);
+    --radius: 26px;
+    --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+            "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: var(--font);
+    color: var(--ink);
+    background: var(--cream);
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  img { display: block; max-width: 100%; }
+
+  #app {
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+    height: 100dvh;
+    margin: 0 auto;
+    overflow: hidden;
+    background: var(--sky, linear-gradient(170deg,#FFF3E0,#FFE9F4));
+    transition: background 1s ease;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .screen {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 24px 22px calc(24px + env(safe-area-inset-bottom));
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(14px);
+    transition: opacity .4s ease, transform .4s ease, visibility .4s;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    z-index: 1;
+  }
+  .screen.active { opacity: 1; visibility: visible; transform: translateY(0); }
+
+  /* 배경 장식(구름/별) */
+  .sky-decor { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+  .sky-decor .blob { position: absolute; border-radius: 50%; }
+  .sky-decor .star {
+    position: absolute; color: var(--coral); font-size: 20px; opacity: .8;
+    animation: twinkle 2.6s ease-in-out infinite;
+  }
+  @keyframes twinkle { 0%,100%{opacity:.35;transform:scale(.85)} 50%{opacity:.95;transform:scale(1.1)} }
+
+  .muted { color: var(--ink-soft); }
+  .center { text-align: center; }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+
+  /* 캐릭터 공통 */
+  .tori {
+    width: 100%; height: 100%;
+    object-fit: contain;
+    animation: bob 3.4s ease-in-out infinite;
+    filter: drop-shadow(0 14px 14px rgba(30,26,18,.14));
+  }
+  @keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-11px)} }
+
+  /* CTA 버튼 */
+  .btn-primary {
+    background: var(--coral);
+    color: #fff;
+    font-weight: 800;
+    font-size: 17px;
+    padding: 17px 20px;
+    border-radius: 18px;
+    box-shadow: 0 8px 0 var(--coral-deep);
+    transition: transform .1s ease, box-shadow .1s ease, background .2s ease;
+    width: 100%;
+    letter-spacing: -0.3px;
+  }
+  .btn-primary:active { transform: translateY(5px); box-shadow: 0 3px 0 var(--coral-deep); }
+  .btn-primary:disabled { background: #EAD9C4; box-shadow: 0 6px 0 #D8C6B0; color:#fff; }
+
+  .back-btn {
+    position: relative; z-index: 3; align-self: flex-start;
+    display: inline-flex; align-items: center; gap: 5px;
+    font-weight: 800; font-size: 15px; color: var(--ink);
+    background: rgba(255,255,255,.82); backdrop-filter: blur(6px);
+    padding: 10px 16px 10px 12px; border-radius: 100px; box-shadow: var(--shadow-sm);
+    margin-bottom: 6px;
+  }
+  .back-btn:active { transform: scale(0.95); }
+
+  /* =========================================================
+     화면 1 — 웰컴
+     ========================================================= */
+  #welcome { justify-content: center; align-items: center; }
+  #welcome .hero { width: 246px; height: 142px; margin-bottom: 26px; animation: none; }
+  .badge {
+    display:inline-flex; align-items:center; gap:6px;
+    background: var(--yellow); color: var(--ink); font-weight:800; font-size:12.5px;
+    padding: 6px 14px; border-radius: 100px; margin-bottom: 12px;
+    box-shadow: var(--shadow-sm);
+  }
+  #welcome h1 { font-size: 29px; font-weight: 800; letter-spacing: -1.2px; line-height:1.25; text-align:center; color: var(--on-sky); }
+  #welcome h1 b { color: var(--coral); }
+  #welcome .sub { font-size: 14.5px; color: var(--on-sky-soft); margin-top: 8px; margin-bottom: 24px; line-height: 1.55; text-align:center; font-weight:600; }
+
+  .field { width: 100%; margin-bottom: 13px; }
+  .field label { display: block; font-size: 13px; font-weight: 800; color: var(--on-sky); margin-bottom: 7px; padding-left: 5px; }
+  .field input, .field select {
+    width: 100%; font-family: inherit; font-size: 16px; font-weight: 600; color: var(--ink);
+    background: var(--paper); border: 2.5px solid #F0E7D6; border-radius: 16px;
+    padding: 16px; outline: none; transition: border-color .2s ease;
+    appearance: none; -webkit-appearance: none;
+  }
+  .field input::placeholder { color: #C7BCA8; font-weight:500; }
+  .field input:focus, .field select:focus { border-color: var(--yellow); }
+  .field select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238A8172' stroke-width='3.2' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 16px center;
+  }
+  #welcome .btn-primary { margin-top: 8px; }
+  .brandline { display:flex; align-items:center; justify-content:center; gap:7px; margin-top:18px; opacity:.75; }
+  .brandline img { width:22px; height:22px; }
+  .brandline span { font-size:12px; font-weight:800; color: var(--ink-soft); letter-spacing:-.2px; }
+
+  /* =========================================================
+     화면 2 — 홈
+     ========================================================= */
+  .home-top { display: flex; align-items: center; justify-content: center; margin-top: 60px; }
+  .greet { text-align: center; }
+  .greet .date-line { font-size: 12px; font-weight: 700; color: var(--on-sky-soft); margin-bottom: 5px; letter-spacing: -0.2px; }
+  .greet .date-line b { color: var(--coral); font-weight: 800; }
+  .greet .hello { font-size: 21px; font-weight: 800; letter-spacing: -0.7px; line-height:1.3; color: var(--on-sky); }
+  .greet .weather-line {
+    display:inline-flex; align-items:center; gap:5px;
+    font-size: 12.5px; font-weight: 800; margin-top: 8px;
+    background: rgba(255,255,255,.72); padding:5px 11px; border-radius:100px; color: var(--ink);
+  }
+  /* 캐릭터: 인사말 아래, 살짝 내려서 (박스를 세로로 넉넉히 잡아 위아래 안 잘리게) */
+  .home-hero { display: flex; flex-direction: column; align-items: center; margin-top: 48px; padding: 4px 0; }
+  .home-hero .hero { width: 118px; height: 150px; }
+  /* 대표 토리 씬 일러스트는 크게 */
+  .home-hero .hero.scene { width: 180px; height: 144px; }
+
+  /* 캐릭터 말풍선 (아주 작게, 캐릭터 머리 위·꼬리 아래) */
+  .speech {
+    position: relative;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 12.5px; font-weight: 600; text-align: center; line-height: 1.35; letter-spacing: -.2px;
+    padding: 8px 14px; border-radius: 14px; margin-bottom: 12px;
+    box-shadow: var(--shadow-sm);
+  }
+  .speech::after {
+    content: ""; position: absolute; left: 50%; bottom: -8px; transform: translateX(-50%);
+    border-left: 8px solid transparent; border-right: 8px solid transparent;
+    border-top: 9px solid var(--paper);
+  }
+
+  .menu-grid { display: flex; flex-direction: column; gap: 13px; margin-top: auto; }
+  .menu-card {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--paper); border-radius: var(--radius);
+    padding: 15px 16px; box-shadow: var(--shadow-sm); text-align: left; width: 100%;
+    border: 2.5px solid transparent;
+    transition: transform .12s ease, box-shadow .2s ease, border-color .2s ease;
+  }
+  .menu-card:active { transform: scale(0.98); box-shadow: var(--shadow); border-color: var(--yellow); }
+  .menu-thumb {
+    width: 58px; height: 58px; flex-shrink: 0; border-radius: 18px;
+    display: grid; place-items: center; overflow: hidden;
+  }
+  .menu-thumb img { width: 82%; height: 82%; object-fit: contain; }
+  .menu-thumb .emo { font-size: 28px; line-height: 1; }
+  .menu-thumb.c-yellow { background: #FFF1BF; }
+  .menu-thumb.c-mint   { background: #D8F3DE; }
+  .menu-thumb.c-lime   { background: #EDFAC4; }
+  .menu-text .t { font-size: 17px; font-weight: 800; letter-spacing: -0.5px; }
+  .menu-text .d { font-size: 12.5px; color: var(--ink-soft); margin-top: 3px; font-weight:600; }
+  .menu-arrow { margin-left: auto; color: #D9CDB8; font-size: 22px; font-weight:800; }
+
+  .footer-note { text-align: center; font-size: 11px; color: #B9AE99; padding: 14px 0 2px; font-weight: 700; }
+
+  /* =========================================================
+     화면 3 — 랜덤뽑기 (타로카드)
+     ========================================================= */
+  .picker-head { text-align: center; margin: 4px 0; }
+  .picker-head h2 { font-size: 23px; font-weight: 800; letter-spacing: -0.7px; color: var(--on-sky); }
+  .picker-head p { font-size: 13.5px; color: var(--on-sky-soft); margin-top: 7px; font-weight:700; }
+
+  .card-fan { flex: 1; min-height: 340px; display: flex; align-items: center; justify-content: center; gap: 12px; perspective: 1200px; padding: 8px 0; }
+  /* 카드 섞기(shake) — 접속 시 덱이 흔들림 */
+  @keyframes deckShake {
+    0%,100% { transform: translateX(0) rotate(0deg); }
+    15% { transform: translateX(-8px) rotate(-2.5deg); }
+    30% { transform: translateX(8px) rotate(2.5deg); }
+    45% { transform: translateX(-7px) rotate(-2deg); }
+    60% { transform: translateX(7px) rotate(2deg); }
+    80% { transform: translateX(-4px) rotate(-1deg); }
+  }
+  .card-fan.shuffling { animation: deckShake .41s ease-in-out 2; }
+  .tarot { position: relative; width: 94px; height: 150px; transform-style: preserve-3d; transition: transform .55s cubic-bezier(.2,.8,.3,1); cursor: pointer; }
+  .tarot .face { position: absolute; inset: 0; border-radius: 18px; backface-visibility: hidden; -webkit-backface-visibility: hidden; display: grid; place-items: center; box-shadow: var(--shadow); }
+  .tarot .back {
+    background: linear-gradient(160deg, var(--yellow), var(--yellow-deep));
+    border: 4px solid #fff; overflow:hidden;
+  }
+  .tarot .back .frame {
+    position:absolute; inset:9px; border: 2.5px dashed rgba(30,26,18,.28); border-radius: 11px;
+    display: grid; place-items: center;
+  }
+  .tarot .back .frame img { width: 62%; opacity:.92; }
+  .tarot .front { background: var(--paper); border: 4px solid var(--yellow); transform: rotateY(180deg); padding: 10px; }
+  .tarot:active { transform: translateY(-6px); }
+  .card-fan.disabled .tarot { pointer-events: none; }
+  .tarot.chosen { transform: rotateY(180deg) scale(1.06); z-index: 2; }
+  .tarot.dimmed { opacity: .26; transform: scale(.86); }
+  .tarot .front .cardtag { font-size: 12px; font-weight: 500; color: var(--ink); text-align:center; }
+  .tarot .front .cardemoji { font-size: 30px; text-align:center; margin-bottom:4px; }
+
+  .result-panel {
+    position: relative;
+    background: var(--paper); border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: 20px; text-align: center;
+    opacity: 0; transform: translateY(12px);
+    transition: opacity .4s ease .15s, transform .4s ease .15s;
+    pointer-events: none; max-height: 0; overflow: visible;
+  }
+  .result-panel.show { opacity: 1; transform: translateY(0); pointer-events: auto; max-height: 500px; margin-top: 6px; }
+  .result-panel .pop-tori {
+    position:absolute; top:-48px; right:12px; width:84px; height:62px;
+    object-fit: contain;
+    animation: bob 3s ease-in-out infinite;
+  }
+  .result-panel .tag { display: inline-block; font-size: 12px; font-weight: 800; color: var(--coral); background: #FFE7DF; padding: 6px 13px; border-radius: 100px; margin-bottom: 12px; }
+  .result-panel .idea { font-size: 21px; font-weight: 800; line-height: 1.4; letter-spacing: -0.6px; }
+  .result-panel .idea-desc { font-size: 13.5px; color: var(--ink-soft); margin-top: 10px; line-height: 1.55; font-weight:600; }
+  .result-actions { display: flex; gap: 10px; margin-top: 18px; }
+  .result-actions .btn-primary { flex: 1.5; width: auto; font-size: 15px; padding: 14px; white-space: nowrap; box-shadow: 0 6px 0 var(--coral-deep); }
+  .result-actions .btn-primary:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--coral-deep); }
+  .btn-outline { flex: 1; border: 2.5px solid var(--yellow); color: var(--ink); font-weight: 800; font-size: 15px; border-radius: 16px; padding: 14px; background: #fff; white-space: nowrap; }
+  .btn-outline:active { transform: scale(.97); }
+
+  /* 뽑기 모드 선택 */
+  .mode-list { display: flex; flex-direction: column; gap: 14px; margin-top: 32px; }
+  .mode-card {
+    display: flex; align-items: center; gap: 15px; background: var(--paper);
+    border-radius: var(--radius); padding: 20px 18px; box-shadow: var(--shadow-sm);
+    text-align: left; width: 100%; border: 2.5px solid transparent;
+    transition: transform .12s ease, box-shadow .2s ease, border-color .2s ease;
+  }
+  .mode-card:active { transform: scale(.98); box-shadow: var(--shadow); border-color: var(--yellow); }
+  .mode-emoji { width: 56px; height: 56px; flex-shrink: 0; border-radius: 18px; display: grid; place-items: center; font-size: 28px; }
+  .mode-emoji.e-random { background: #FFF1BF; }
+  .mode-emoji.e-quiz { background: #D8F3DE; }
+  .mode-text .mt { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
+  .mode-text .md { font-size: 12.5px; color: var(--ink-soft); margin-top: 4px; font-weight: 600; line-height: 1.4; }
+
+  /* 질문으로 뽑기 */
+  .quiz-progress { display: flex; justify-content: center; gap: 8px; margin: 10px 0 0; }
+  .quiz-progress .pdot { width: 28px; height: 6px; border-radius: 100px; background: rgba(255,255,255,.65); transition: background .3s ease; }
+  .quiz-progress .pdot.on { background: var(--coral); }
+  /* 질문 본문을 세로 중앙에 배치 */
+  .quiz-body { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 8px 0; }
+  .quiz-head { text-align: center; margin-bottom: 26px; }
+  .quiz-head .quiz-step { font-size: 12.5px; font-weight: 800; color: var(--coral); margin-bottom: 9px; }
+  .quiz-head h2 { font-size: 22px; font-weight: 800; letter-spacing: -0.6px; color: var(--on-sky); line-height: 1.35; }
+  .quiz-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+  /* 응답 타로카드 — 은은하고 세련되게 */
+  .quiz-card {
+    position: relative;
+    aspect-ratio: 3 / 4;
+    background: linear-gradient(170deg, #FFFDF8, #FFF6EA);
+    border: 2px solid #F0E7D4; border-radius: 20px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+    box-shadow: 0 10px 24px rgba(30,26,18,.09);
+    transition: transform .14s ease, border-color .2s ease, box-shadow .2s ease;
+    animation: quizCardIn .42s ease both;
+  }
+  .quiz-card::before {
+    content:""; position:absolute; inset:10px; border:1.5px dashed rgba(212,178,116,.4);
+    border-radius:14px; pointer-events:none;
+  }
+  .quiz-card:active { transform: translateY(-5px) scale(.985); border-color: var(--coral); box-shadow: 0 6px 16px rgba(240,78,48,.16); }
+  .quiz-card .qemoji {
+    font-size: 36px; line-height: 1;
+    width: 64px; height: 64px; display: grid; place-items: center;
+    background: rgba(255,210,0,.15); border-radius: 50%;
+  }
+  .quiz-card .qlabel { font-size: 15.5px; font-weight: 700; letter-spacing: -0.3px; }
+  @keyframes quizCardIn { from { opacity: 0; transform: translateY(14px) scale(.94) rotate(-2deg); } to { opacity: 1; transform: translateY(0) scale(1) rotate(0); } }
+
+  /* 결과 아래 — 어울리는 아티클 큐레이션 */
+  .article-sec { display: none; margin-top: 26px; }
+  .article-sec.show { display: block; animation: quizCardIn .4s ease both; }
+  .article-head { font-size: 14.5px; font-weight: 800; color: var(--on-sky); margin-bottom: 12px; padding-left: 2px; letter-spacing: -0.3px; }
+  .article-list { display: flex; flex-direction: column; gap: 10px; }
+  .article-card {
+    display: flex; align-items: center; gap: 13px; background: var(--paper);
+    border-radius: 18px; padding: 11px; box-shadow: var(--shadow-sm);
+    text-align: left; width: 100%; text-decoration: none; color: var(--ink);
+    transition: transform .12s ease, box-shadow .2s ease; cursor: pointer;
+  }
+  .article-card:active { transform: scale(.98); box-shadow: var(--shadow); }
+  .article-thumb { width: 66px; height: 66px; flex-shrink: 0; border-radius: 14px; display: grid; place-items: center; font-size: 30px; }
+  .article-title { font-size: 14px; font-weight: 700; line-height: 1.4; letter-spacing: -0.3px; word-break: keep-all; }
+
+  /* 토리 획득 텍스트 (캐릭터 이미지 위) */
+  .tori-get-label {
+    display: none; position: absolute; top: -78px; right: 8px; z-index: 4;
+    background: var(--coral); color: #fff; font-size: 12.5px; font-weight: 800;
+    padding: 6px 12px; border-radius: 100px; white-space: nowrap; box-shadow: var(--shadow-sm);
+  }
+  .tori-get-label.show { display: block; animation: badgePop .5s ease; }
+  .tori-get-label::after {
+    content: ""; position: absolute; left: 50%; bottom: -5px; transform: translateX(-50%);
+    border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 6px solid var(--coral);
+  }
+  .tori-get-label.levelup { background: var(--yellow-deep); color: var(--ink); }
+  .tori-get-label.levelup::after { border-top-color: var(--yellow-deep); }
+  @keyframes badgePop { 0% { transform: scale(.6); opacity: 0; } 60% { transform: scale(1.12); } 100% { transform: scale(1); opacity: 1; } }
+
+  /* 홈 우측 상단 도감 아이콘 */
+  .archive-btn {
+    position: absolute; top: calc(22px + env(safe-area-inset-top)); right: 22px; z-index: 6;
+    width: 48px; height: 48px; border-radius: 50%; background: var(--paper);
+    box-shadow: var(--shadow-sm); display: grid; place-items: center;
+    transition: transform .12s ease;
+  }
+  .archive-btn img { width: 30px; height: 30px; }
+  .archive-btn:active { transform: scale(.92); }
+  .archive-badge {
+    position: absolute; top: -3px; right: -3px; min-width: 19px; height: 19px; padding: 0 5px;
+    border-radius: 100px; background: var(--coral); color: #fff; font-size: 11px; font-weight: 800;
+    display: grid; place-items: center; box-shadow: 0 2px 6px rgba(30,26,18,.2);
+  }
+
+  /* 토리 도감 페이지 */
+  .archive-head { text-align: center; margin: 6px 0 20px; }
+  .archive-head h2 { font-size: 23px; font-weight: 800; letter-spacing: -0.7px; color: var(--on-sky); }
+  .archive-head p { font-size: 13px; font-weight: 800; color: var(--on-sky-soft); margin-top: 8px; }
+  .archive-hint { font-size: 12px !important; font-weight: 700 !important; color: var(--coral-deep) !important; margin-top: 6px !important; }
+  .tori-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 11px; padding-bottom: 26px; }
+  .tori-cell { position: relative; background: var(--paper); border-radius: 18px; padding: 13px 6px 11px; text-align: center; box-shadow: var(--shadow-sm); border: 2px solid transparent; }
+  .tori-cell.on, .tori-cell.off { cursor: pointer; transition: transform .12s ease, border-color .2s ease; }
+  .tori-cell.on:active, .tori-cell.off:active { transform: scale(.97); }
+  .tori-cell.rep { border-color: var(--coral); }
+  /* 대표 딱지: 좌측 상단 라운드에 */
+  .rep-badge { position: absolute; top: 7px; left: 7px; background: var(--coral); color: #fff; font-size: 9.5px; font-weight: 800; padding: 3px 8px; border-radius: 100px; white-space: nowrap; z-index: 2; box-shadow: var(--shadow-sm); }
+  .tori-cell.off { background: rgba(255,255,255,.45); box-shadow: none; }
+  .tori-thumb { position: relative; width: 100%; aspect-ratio: 1/1; display: grid; place-items: center; margin-bottom: 6px; overflow: visible; }
+  .thumb-inner { display: grid; place-items: center; width: 100%; height: 100%; transform-origin: center bottom; transition: transform .3s ease; }
+  .tori-thumb img { width: 82%; height: 82%; object-fit: contain; }
+  .tori-thumb img.locked { filter: grayscale(1) brightness(.65) opacity(.25); }
+  .ti-ph { width: 62px; height: 62px; border-radius: 50%; background: #F4ECDD; display: grid; place-items: center; font-size: 26px; font-weight: 800; color: #C7B79E; }
+  .ti-ph.locked { background: #E7E3DB; color: #ADA495; }
+  .ti-ph.special { background: linear-gradient(135deg, #FF8FB1, #FFD36E, #9BE870, #7BC9FF, #C89BFF); color: #fff; box-shadow: 0 3px 10px rgba(30,26,18,.14); }
+  .tori-thumb .lock { position: absolute; right: 8px; bottom: 4px; font-size: 14px; }
+  .tori-name { font-size: 12.5px; font-weight: 800; letter-spacing: -0.3px; }
+  .tori-cell.off .tori-name { color: var(--ink-soft); }
+  .tori-how { font-size: 10.5px; font-weight: 700; color: var(--ink-soft); margin-top: 3px; line-height: 1.3; }
+  /* 레벨 게이지 */
+  .lv-row { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; padding: 0 2px; }
+  .lv-count { font-size: 10.5px; font-weight: 800; color: var(--ink-soft); }
+  .lv-badge { font-size: 10.5px; font-weight: 800; color: #fff; background: var(--ink); padding: 2px 9px; border-radius: 100px; letter-spacing: -0.2px; }
+  .tori-gauge { height: 5px; background: #EFE6D4; border-radius: 100px; margin-top: 5px; overflow: hidden; }
+  .tori-gauge-fill { height: 100%; background: linear-gradient(90deg, var(--yellow), var(--coral)); border-radius: 100px; transition: width .4s ease; }
+
+  /* 결과 화면 — 선택 답변 칩 */
+  .picker-tags { display: none; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 11px; }
+  .picker-tags .ptag {
+    font-size: 11.5px; font-weight: 800; color: var(--ink);
+    background: rgba(255,255,255,.8); padding: 6px 12px; border-radius: 100px; box-shadow: var(--shadow-sm);
+  }
+
+  /* =========================================================
+     화면 4 — 버킷리스트
+     ========================================================= */
+  .bucket-head { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-top:12px; }
+  .bucket-head h2 { font-size: 23px; font-weight: 800; letter-spacing: -0.7px; color: var(--on-sky); }
+  .bucket-head p { font-size: 13px; color: var(--on-sky-soft); margin-top: 6px; font-weight:700; line-height:1.45; }
+  .bucket-head .doodle { width: 78px; flex-shrink:0; margin-top:-6px; transform: rotate(4deg); }
+
+  .progress-wrap { margin: 14px 0 4px; }
+  .progress-bar { height: 12px; background: #EFE6D4; border-radius: 100px; overflow: hidden; }
+  .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--yellow), var(--coral)); border-radius: 100px; transition: width .5s ease; }
+  .progress-label { font-size: 12px; font-weight: 800; color: var(--on-sky-soft); margin-top: 8px; }
+
+  /* 생성 영역 ↔ 리스트 영역 구분 */
+  .section-label { font-size: 13px; font-weight: 800; color: var(--on-sky); margin-bottom: 9px; padding-left: 2px; letter-spacing: -0.3px; }
+  .add-area { margin-top: 16px; }
+  .list-section { margin-top: 24px; padding-top: 22px; border-top: 1.5px solid rgba(140,120,90,.18); }
+
+  /* 필터 (세그먼트 컨트롤) */
+  .bucket-filters { display: flex; gap: 5px; background: rgba(255,255,255,.5); padding: 5px; border-radius: 15px; margin-bottom: 14px; }
+  .filter-tab { flex: 1; padding: 9px 4px; border-radius: 11px; font-size: 13.5px; font-weight: 800; color: var(--ink-soft); background: transparent; transition: background .2s ease, color .2s ease; letter-spacing: -0.3px; }
+  .filter-tab.active { background: var(--paper); color: var(--coral-deep); box-shadow: var(--shadow-sm); }
+  .filter-tab .fcount { font-size: 12px; opacity: .75; margin-left: 1px; }
+
+  .add-row { display: flex; gap: 8px; margin: 0; }
+  .add-row input { flex: 1; font-family: inherit; font-size: 15px; font-weight:600; color: var(--ink); background: var(--paper); border: 2.5px solid #F0E7D6; border-radius: 15px; padding: 14px; outline: none; }
+  .add-row input::placeholder { color:#C7BCA8; font-weight:500; }
+  .add-row input:focus { border-color: var(--yellow); }
+  .add-row button { width: 52px; flex-shrink: 0; background: var(--coral); color: #fff; font-size: 27px; font-weight: 400; border-radius: 15px; line-height: 1; box-shadow: 0 5px 0 var(--coral-deep); }
+  .add-row button:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--coral-deep); }
+
+  .bucket-list { list-style: none; margin-top: 12px; display: flex; flex-direction: column; gap: 10px; padding-bottom: 24px; }
+  .bucket-item { background: var(--paper); border-radius: 18px; box-shadow: var(--shadow-sm); padding: 15px; display: flex; align-items: flex-start; gap: 12px; }
+  .check { width: 28px; height: 28px; flex-shrink: 0; margin-top: 1px; border: 3px solid #E4D8C2; border-radius: 10px; display: grid; place-items: center; color: #fff; font-size: 16px; font-weight:800; transition: background .2s ease, border-color .2s ease; }
+  .bucket-item.done .check { background: var(--coral); border-color: var(--coral); }
+  .bucket-body { flex: 1; min-width: 0; }
+  .bucket-body .txt { font-size: 15.5px; font-weight: 800; line-height: 1.4; word-break: keep-all; }
+  .bucket-item.done .bucket-body .txt { color: var(--ink-soft); text-decoration: line-through; }
+  .bucket-body .note { font-size: 13px; color: var(--ink-soft); margin-top: 8px; line-height: 1.5; background: var(--cream); border-radius: 12px; padding: 9px 11px; display: none; font-weight:600; }
+  .bucket-item.done .bucket-body .note.has { display: block; }
+  .bucket-body .note-date { display: block; font-size: 11px; color: #BFB39D; margin-top: 5px; font-weight: 800; }
+  .del-btn { color: #D9CDB8; font-size: 21px; padding: 0 2px; line-height: 1; align-self: center; font-weight:700; }
+
+  .empty-state { text-align: center; color: var(--ink-soft); padding: 34px 20px; }
+  .empty-state img { width: 96px; margin: 0 auto 4px; }
+  .empty-state p { margin-top: 8px; font-size: 14px; line-height: 1.55; font-weight:700; }
+
+  /* 완료 기록 시트 */
+  .sheet-backdrop { position: fixed; inset: 0; background: rgba(30,26,18,.4); opacity: 0; visibility: hidden; transition: opacity .3s ease, visibility .3s; z-index: 50; display: flex; align-items: flex-end; justify-content: center; }
+  .sheet-backdrop.show { opacity: 1; visibility: visible; }
+  .sheet { width: 100%; max-width: 480px; background: var(--cream); border-radius: 28px 28px 0 0; padding: 24px 22px calc(24px + env(safe-area-inset-bottom)); transform: translateY(100%); transition: transform .34s cubic-bezier(.2,.8,.3,1); }
+  .sheet-backdrop.show .sheet { transform: translateY(0); }
+  .sheet h3 { font-size: 19px; font-weight: 800; letter-spacing: -0.5px; }
+  .sheet p.sub { font-size: 13px; color: var(--ink-soft); margin: 7px 0 14px; font-weight:600; }
+  .sheet textarea { width: 100%; font-family: inherit; font-size: 15px; font-weight:600; color: var(--ink); line-height: 1.5; background: #fff; border: 2.5px solid #F0E7D6; border-radius: 15px; padding: 14px; outline: none; resize: none; height: 96px; }
+  .sheet textarea:focus { border-color: var(--yellow); }
+  .sheet .sheet-actions { display: flex; gap: 10px; margin-top: 14px; }
+
+  .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--ink); color: #fff; font-size: 14px; font-weight: 800; padding: 13px 22px; border-radius: 100px; box-shadow: var(--shadow); opacity: 0; visibility: hidden; transition: all .3s ease; z-index: 60; white-space: nowrap; }
+  .toast.show { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="sky-decor" id="skyDecor"></div>
+
+  <!-- ===================== 화면 1: 웰컴 ===================== -->
+  <section class="screen active" id="welcome">
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;width:100%">
+      <div class="badge">🔑 NFC 키링 · 주말토리</div>
+      <h1><b>주말</b>에 뭐 하지?</h1>
+      <p class="sub">고민은 그만! 주말토리가 같이 정해줄게요.<br/>먼저 인사부터 나눠요 :)</p>
+      <img class="hero tori" id="welcomeChar" src="assets/web/welcome-hero.png" alt="주말토리" />
+
+      <div class="field">
+        <label for="nameInput">뭐라고 부를까요?</label>
+        <input id="nameInput" type="text" placeholder="닉네임을 입력해주세요" maxlength="12" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label for="regionInput">어느 동네에 있어요?</label>
+        <select id="regionInput">
+          <option value="" disabled selected>지역을 선택해주세요</option>
+          <option>서울</option><option>경기</option><option>인천</option>
+          <option>부산</option><option>대구</option><option>대전</option>
+          <option>광주</option><option>울산</option><option>세종</option>
+          <option>강원</option><option>충북</option><option>충남</option>
+          <option>전북</option><option>전남</option><option>경북</option>
+          <option>경남</option><option>제주</option>
+        </select>
+      </div>
+      <button class="btn-primary" id="startBtn" disabled>주말토리랑 시작하기</button>
+
+      <div class="brandline">
+        <img src="assets/web/logo-face.svg" alt="" />
+        <span>weekend with tori</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 화면 2: 홈 ===================== -->
+  <section class="screen" id="home">
+    <button class="archive-btn" id="archiveBtn" data-go="archive" aria-label="토리 도감">
+      <img src="assets/web/logo-face.svg" alt="" />
+      <span class="archive-badge" id="archiveBadge">0</span>
+    </button>
+    <div class="home-top">
+      <div class="greet">
+        <div class="date-line" id="homeDate"></div>
+        <div class="hello" id="homeHello">토리님, 안녕하세요!</div>
+      </div>
+    </div>
+
+    <div class="home-hero">
+      <div class="speech">뭐하고 놀아볼까요?</div>
+      <img class="hero tori" id="homeChar" src="assets/web/tori-basic.png" alt="주말토리" />
+    </div>
+
+    <div class="menu-grid">
+      <button class="menu-card" data-go="pickerMode">
+        <div class="menu-thumb c-yellow"><span class="emo">🃏</span></div>
+        <div class="menu-text">
+          <div class="t">주말 랜덤뽑기</div>
+          <div class="d">카드 한 장으로 이번 주말 결정!</div>
+        </div>
+        <div class="menu-arrow">›</div>
+      </button>
+      <button class="menu-card" id="mapCard">
+        <div class="menu-thumb c-mint"><span class="emo">🗺️</span></div>
+        <div class="menu-text">
+          <div class="t">주말 지도</div>
+          <div class="d">주말토리가 찜한 장소들 구경하기</div>
+        </div>
+        <div class="menu-arrow">›</div>
+      </button>
+      <button class="menu-card" data-go="bucket">
+        <div class="menu-thumb c-lime"><span class="emo">📝</span></div>
+        <div class="menu-text">
+          <div class="t">내 주말 버킷리스트</div>
+          <div class="d" id="bucketMenuDesc">해보고 싶은 걸 기록해요</div>
+        </div>
+        <div class="menu-arrow">›</div>
+      </button>
+    </div>
+    <p class="footer-note">주말토리 · 주말에 뭐하지?</p>
+  </section>
+
+  <!-- ===================== 화면 2-1: 토리 도감(아카이브) ===================== -->
+  <section class="screen" id="archive">
+    <button class="back-btn" data-go="home">‹ 홈으로</button>
+    <div class="archive-head">
+      <h2>토리 도감 🧸</h2>
+      <p id="archiveProgress">0마리 모았어요</p>
+    </div>
+    <div class="tori-grid" id="toriGrid"></div>
+  </section>
+
+  <!-- ===================== 화면 3-0: 뽑기 모드 선택 ===================== -->
+  <section class="screen" id="pickerMode">
+    <button class="back-btn" data-go="home">‹ 홈으로</button>
+    <div class="picker-head">
+      <h2>주말 랜덤뽑기 🃏</h2>
+      <p>어떤 방식으로 뽑아볼까요?</p>
+    </div>
+    <div class="mode-list">
+      <button class="mode-card" id="modeRandom">
+        <div class="mode-emoji e-random">🎲</div>
+        <div class="mode-text">
+          <div class="mt">완전 랜덤</div>
+          <div class="md">그냥 운에 맡기고 한 장! 가장 빠른 결정</div>
+        </div>
+        <div class="menu-arrow">›</div>
+      </button>
+      <button class="mode-card" id="modeQuiz">
+        <div class="mode-emoji e-quiz">💬</div>
+        <div class="mode-text">
+          <div class="mt">질문으로 뽑기</div>
+          <div class="md">3가지 질문에 답하면 딱 맞는 주말 추천</div>
+        </div>
+        <div class="menu-arrow">›</div>
+      </button>
+    </div>
+    <p class="footer-note">오늘의 주말, 어떻게 정해볼까요?</p>
+  </section>
+
+  <!-- ===================== 화면 3-1: 질문으로 뽑기 ===================== -->
+  <section class="screen" id="pickerQuiz">
+    <button class="back-btn" id="quizBack">‹ 이전</button>
+    <div class="quiz-progress" id="quizProgress"></div>
+    <div class="quiz-body">
+      <div class="quiz-head">
+        <div class="quiz-step" id="quizStepLabel">질문 1 / 3</div>
+        <h2 id="quizQuestion">질문</h2>
+      </div>
+      <div class="quiz-cards" id="quizCards"></div>
+    </div>
+    <p class="footer-note">마음이 가는 답을 골라주세요</p>
+  </section>
+
+  <!-- ===================== 화면 3-2: 랜덤뽑기 ===================== -->
+  <section class="screen" id="picker">
+    <button class="back-btn" data-go="pickerMode">‹ 뒤로</button>
+    <div class="picker-head">
+      <h2 id="pickerTitle">주말 랜덤뽑기 🃏</h2>
+      <p id="pickerGuide">마음이 가는 카드 한 장을 골라 탭해보세요</p>
+      <div class="picker-tags" id="pickerTags"></div>
+    </div>
+
+    <div class="card-fan" id="cardFan"></div>
+
+    <div class="result-panel" id="resultPanel">
+      <img class="pop-tori" id="resultTori" src="assets/web/tori-excited.png" alt="" />
+      <div class="tori-get-label" id="toriGetLabel"></div>
+      <span class="tag" id="resultTag">이번 주말은</span>
+      <div class="idea" id="resultIdea"></div>
+      <div class="idea-desc" id="resultDesc"></div>
+      <div class="result-actions">
+        <button class="btn-outline" id="reshuffleBtn">다시 뽑기</button>
+        <button class="btn-primary" id="saveToBucketBtn">버킷리스트에 담기</button>
+      </div>
+    </div>
+
+    <!-- 뽑은 카드와 어울리는 주말토리 아티클 -->
+    <div class="article-sec" id="articleSec">
+      <div class="article-head">📖 이 주말과 어울리는 아티클</div>
+      <div class="article-list" id="articleList"></div>
+    </div>
+
+    <p class="footer-note">탭할 때마다 새로운 주말이 기다려요</p>
+  </section>
+
+  <!-- ===================== 화면 4: 버킷리스트 ===================== -->
+  <section class="screen" id="bucket">
+    <button class="back-btn" data-go="home">‹ 홈으로</button>
+    <div class="bucket-head">
+      <div>
+        <h2>내 주말 버킷리스트</h2>
+        <p>해보고 싶은 주말을 적고,<br/>이룬 뒤엔 기록을 남겨요 ✏️</p>
+      </div>
+      <img class="doodle" src="assets/web/doodle-todo.png" alt="주말 할 일: 놀기!" />
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-label" id="progressLabel">아직 시작 전이에요</div>
+    </div>
+
+    <div class="add-area">
+      <div class="section-label">✏️ 추가하기</div>
+      <div class="add-row">
+        <input id="bucketInput" type="text" placeholder="예: 한강에서 자전거 타기" maxlength="40" autocomplete="off" />
+        <button id="bucketAddBtn">+</button>
+      </div>
+    </div>
+
+    <div class="list-section">
+      <div class="bucket-filters" id="bucketFilters">
+        <button class="filter-tab active" data-filter="all">전체 <span class="fcount" id="cntAll">0</span></button>
+        <button class="filter-tab" data-filter="todo">도전중 <span class="fcount" id="cntTodo">0</span></button>
+        <button class="filter-tab" data-filter="done">완료 <span class="fcount" id="cntDone">0</span></button>
+      </div>
+      <ul class="bucket-list" id="bucketList"></ul>
+    </div>
+  </section>
+
+  <!-- 완료 기록 시트 -->
+  <div class="sheet-backdrop" id="doneSheet">
+    <div class="sheet">
+      <h3 id="doneSheetTitle">🎉 해냈어요!</h3>
+      <p class="sub">어땠는지 짧게 남겨볼까요? (안 써도 괜찮아요)</p>
+      <textarea id="doneNote" placeholder="예: 생각보다 사람 많았지만 노을이 진짜 예뻤다 🌅"></textarea>
+      <div class="sheet-actions">
+        <button class="btn-outline" id="doneSkip">그냥 완료</button>
+        <button class="btn-primary" id="doneSave">기록 남기기</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+/* =========================================================
+   설정값 — 실제 데이터로 교체하는 곳
+   ========================================================= */
+
+// 👉 주말지도 실제 URL로 바꿔주세요 (지금은 임시)
+const MAP_URL = "https://joomaltory.com/map"; // TODO: 실제 주말지도 URL
+
+// 캐릭터 이미지
+const TORI = {
+  search:  "assets/web/tori-search.png",  // 호기심토리
+  basic:   "assets/web/tori-basic.png",   // 기본
+  eat:     "assets/web/tori-eat.png",     // 먹토리
+  read:    "assets/web/tori-read.png",    // 감상토리
+  travel:  "assets/web/tori-travel.png",  // 여행토리
+  rest:    "assets/web/tori-rest.png",    // 휴식토리
+  excited: "assets/web/tori-excited.png", // 흥토리
+};
+
+// 주말 아이디어 풀 — 실제 콘텐츠로 자유롭게 추가/수정하세요
+// place: in(집)/out(집밖) · who: 어울리는 동행 · mood: active(활기)/make(몰입)/chill(느긋)/rest(늘어짐)
+const IDEAS = [
+  { tag: "감성 산책", emoji:"📷", idea: "성수동 필름카메라 산책", desc: "필름 한 통 들고 골목골목 담아보기. 현상은 다음 주 설렘으로!", place:"out", who:["solo","friend","couple"], mood:"chill" },
+  { tag: "집콕 힐링", emoji:"🎬", idea: "홈카페 + 영화 한 편", desc: "직접 내린 커피랑 담요, 아껴둔 영화 한 편이면 완벽한 하루", place:"in", who:["solo","couple","friend"], mood:"rest" },
+  { tag: "자연 충전", emoji:"🌳", idea: "가까운 수목원 나들이", desc: "초록 사이를 천천히 걸으며 도시 소음에서 잠깐 로그아웃", place:"out", who:["solo","friend","couple","family"], mood:"chill" },
+  { tag: "미식 탐험", emoji:"🍜", idea: "안 가본 동네 맛집 개척", desc: "지도 앱 대신 발길 닿는 대로. 오늘의 인생맛집을 찾아서", place:"out", who:["friend","couple","family"], mood:"active" },
+  { tag: "취향 수집", emoji:"🛍️", idea: "동네 소품샵 구경", desc: "살 건 없어도 괜찮아요. 예쁜 걸 눈에 담는 것만으로 충전", place:"out", who:["solo","friend","couple"], mood:"chill" },
+  { tag: "물멍 타임", emoji:"🌅", idea: "한강에서 노을 보기", desc: "돗자리 하나, 편의점 간식 하나. 해 지는 걸 끝까지 지켜보기", place:"out", who:["solo","friend","couple","family"], mood:"chill" },
+  { tag: "몸 깨우기", emoji:"🏃", idea: "아침 러닝 + 브런치", desc: "가볍게 뛰고 든든하게 먹기. 부지런한 주말의 뿌듯함", place:"out", who:["solo","friend"], mood:"active" },
+  { tag: "문화 충전", emoji:"🖼️", idea: "혼자 전시 보러 가기", desc: "누구 눈치도 안 보고 내 속도로. 마음에 드는 그림 앞에 오래", place:"out", who:["solo"], mood:"chill" },
+  { tag: "손끝 몰입", emoji:"🎨", idea: "원데이 클래스 도전", desc: "도자기든 향수든, 손으로 뭔가 만들어내는 몰입의 재미", place:"out", who:["solo","friend","couple"], mood:"make" },
+  { tag: "책과 함께", emoji:"📖", idea: "동네 책방에서 반나절", desc: "표지에 끌린 책 한 권 골라 창가 자리에서 조용히 읽기", place:"out", who:["solo"], mood:"rest" },
+  { tag: "밤 산책", emoji:"🌃", idea: "야경 좋은 언덕 오르기", desc: "노을부터 야경까지. 반짝이는 도시를 내려다보는 밤", place:"out", who:["friend","couple","family"], mood:"active" },
+  { tag: "로컬 여행", emoji:"🚃", idea: "당일치기 근교 여행", desc: "기차표 한 장이면 충분해요. 낯선 동네에서의 하루", place:"out", who:["friend","couple","family"], mood:"active" },
+  { tag: "달콤 휴식", emoji:"🍰", idea: "디저트 카페 투어", desc: "한 곳 말고 두세 곳. 오늘은 단 걸 마음껏 허락하는 날", place:"out", who:["friend","couple"], mood:"chill" },
+  { tag: "감성 기록", emoji:"✍️", idea: "필사 노트 채우기", desc: "좋아하는 문장을 손으로 옮겨 적으며 마음도 함께 정리하기", place:"in", who:["solo"], mood:"make" },
+  { tag: "동네 재발견", emoji:"🧭", idea: "우리 동네 골목 탐험", desc: "늘 지나치던 길을 일부러 돌아가 보기. 의외의 발견이 기다려요", place:"out", who:["solo","friend","couple"], mood:"active" },
+  { tag: "집콕 파티", emoji:"🎉", idea: "집에서 홈파티 열기", desc: "좋아하는 사람들 불러 배달음식과 함께 왁자지껄한 하루", place:"in", who:["friend","couple","family"], mood:"active" },
+  { tag: "정주행", emoji:"📺", idea: "밀린 드라마 정주행", desc: "이불 속에서 간식 쌓아두고 하루 종일 몰아보기", place:"in", who:["solo","couple"], mood:"rest" },
+  { tag: "홈 베이킹", emoji:"🧁", idea: "홈 베이킹 도전", desc: "오븐 냄새 가득한 주말. 실패해도 맛있으면 그만!", place:"in", who:["solo","couple","family"], mood:"make" },
+  { tag: "공간 리셋", emoji:"🧹", idea: "방 대청소 + 가구 재배치", desc: "묵은 짐 비우고 배치 바꾸면 새집에 온 기분", place:"in", who:["solo"], mood:"make" },
+  { tag: "홈트 타임", emoji:"🧘", idea: "음악 틀고 홈트 한 판", desc: "거창한 준비 없이 매트 하나면 충분한 개운함", place:"in", who:["solo"], mood:"active" },
+  { tag: "보드게임", emoji:"🎲", idea: "집에서 보드게임 대결", desc: "승부욕 불타는 밤. 지는 사람이 설거지 어때요?", place:"in", who:["friend","couple","family"], mood:"active" },
+  { tag: "요리 도전", emoji:"🍳", idea: "안 해본 요리 만들어보기", desc: "레시피 하나 정해 장보기부터 플레이팅까지 도전", place:"in", who:["solo","couple","family"], mood:"make" },
+];
+
+// 뽑기 후보 풀(모드에 따라 바뀜) — 기본은 전체
+let pickerPool = IDEAS;
+let pickMode = "random"; // "random" | "quiz"
+
+/* =========================================================
+   토리 도감 — 수집 시스템
+   - 랜덤뽑기: 하루 첫 뽑기 때 카드 성격에 맞는 토리 획득
+   - 버킷: 10/50/100/500/1000개 달성 시 스페셜 토리
+   img가 null인 토리는 이미지 준비 중(도감에 잠금 표시) — 나중에 이미지 넣고 매칭
+   ========================================================= */
+const TORIS = [
+  { id:"base",    name:"기본토리",   img:"assets/web/tori-default.png", how:"기본 제공" },
+  { id:"curious", name:"호기심토리", img:"assets/web/tori-curious.png", how:"랜덤뽑기" },
+  { id:"travel",  name:"여행토리",   img:"assets/web/tori-travel.png",  how:"랜덤뽑기" },
+  { id:"eat",     name:"먹토리",     img:"assets/web/tori-eat.png",     how:"랜덤뽑기" },
+  { id:"read",    name:"감상토리",   img:"assets/web/tori-read.png",    how:"랜덤뽑기" },
+  { id:"rest",    name:"휴식토리",   img:"assets/web/tori-rest.png",    how:"랜덤뽑기" },
+  { id:"excited", name:"흥토리",     img:"assets/web/tori-excited.png", how:"랜덤뽑기" },
+  { id:"sabujak", name:"사부작토리", img:"assets/web/tori-sabujak.png", how:"랜덤뽑기" },
+  { id:"home",    name:"집토리",     img:"assets/web/tori-sabujak.png", how:"랜덤뽑기" },
+  { id:"honto",   name:"혼토리",     img:null, how:"랜덤뽑기" },
+  { id:"exhibit", name:"전시토리",   img:null, how:"랜덤뽑기" },
+  { id:"book",    name:"책토리",     img:"assets/web/tori-read.png",    how:"랜덤뽑기" },
+  { id:"sp10",    name:"스페셜토리 Ⅰ", img:null, how:"버킷 10개 달성",   special:true },
+  { id:"sp50",    name:"스페셜토리 Ⅱ", img:null, how:"버킷 50개 달성",   special:true },
+  { id:"sp100",   name:"스페셜토리 Ⅲ", img:null, how:"버킷 100개 달성",  special:true },
+  { id:"sp500",   name:"스페셜토리 Ⅳ", img:null, how:"버킷 500개 달성",  special:true },
+  { id:"sp1000",  name:"스페셜토리 Ⅴ", img:null, how:"버킷 1000개 달성", special:true },
+];
+
+// 카드 성격(tag) → 토리 (지금은 이미지 있는 8종에 매핑)
+const TAG_TORI = {
+  "감성 산책":"curious","집콕 힐링":"home","자연 충전":"travel","미식 탐험":"eat",
+  "취향 수집":"sabujak","물멍 타임":"rest","몸 깨우기":"excited","문화 충전":"read",
+  "손끝 몰입":"sabujak","책과 함께":"read","밤 산책":"travel","로컬 여행":"travel",
+  "달콤 휴식":"eat","감성 기록":"read","동네 재발견":"curious","집콕 파티":"excited",
+  "정주행":"read","홈 베이킹":"sabujak","공간 리셋":"home","홈트 타임":"excited",
+  "보드게임":"excited","요리 도전":"eat",
+};
+const toriById = id => TORIS.find(t => t.id === id);
+const toriForIdea = idea => toriById(TAG_TORI[idea.tag] || "home");
+
+// 토리별 홈 배경 씬 일러스트 (있는 토리만) — 파일 추가하면 여기 매핑
+const TORI_SCENE = {
+  base:    "assets/web/scene-forest.png",
+  curious: "assets/web/scene-curious.png",
+  travel:  "assets/web/scene-travel.png",
+  eat:     "assets/web/scene-eat.png",
+  excited: "assets/web/scene-excited.png",
+  home:    "assets/web/scene-home.png",
+  book:    "assets/web/scene-book.png",
+  honto:   "assets/web/scene-honto.png",
+  rest:    "assets/web/scene-rest.png",
+};
+const toriScene = id => TORI_SCENE[id] || null;
+
+// 버킷 달성 마일스톤 → 스페셜 토리
+const BUCKET_MILESTONE = { 10:"sp10", 50:"sp50", 100:"sp100", 500:"sp500", 1000:"sp1000" };
+
+// 수집 저장 (localStorage) — {toriId: 뽑은 횟수} 맵으로 레벨 관리
+const LEVEL_STEP = 5; // 5번 모을 때마다 레벨업
+function getToriMap() {
+  try {
+    const raw = JSON.parse(localStorage.getItem("jt_toris") || "{}");
+    if (Array.isArray(raw)) { const m = {}; raw.forEach(id => m[id] = (m[id] || 0) + 1); return m; } // 구버전(배열) 마이그레이션
+    return raw || {};
+  } catch { return {}; }
+}
+function toriCount(id) { return getToriMap()[id] || 0; }
+function hasTori(id) { return toriCount(id) > 0; }
+function getToris() { const m = getToriMap(); return Object.keys(m).filter(k => m[k] > 0); }
+function toriLevel(c) { return c > 0 ? Math.floor((c - 1) / LEVEL_STEP) + 1 : 0; }
+function toriLevelInfo(c) {
+  const level = toriLevel(c);
+  const inLevel = c > 0 ? ((c - 1) % LEVEL_STEP) + 1 : 0;
+  return { level, inLevel, step: LEVEL_STEP, pct: Math.round(inLevel / LEVEL_STEP * 100), count: c };
+}
+function addTori(id) {
+  const m = getToriMap();
+  const before = m[id] || 0;
+  m[id] = before + 1;
+  localStorage.setItem("jt_toris", JSON.stringify(m));
+  return { isNew: before === 0, count: m[id], level: toriLevel(m[id]) };
+}
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+
+// 질문으로 뽑기 — 3가지 질문
+const QUIZ = [
+  { q: "어디에서 놀고 싶어요?", key: "place", options: [
+      { emoji:"🏠", label:"집에서", value:"in" },
+      { emoji:"🌳", label:"집 밖에서", value:"out" },
+  ]},
+  { q: "누구와 함께 보내고 싶어요?", key: "who", options: [
+      { emoji:"🧍", label:"혼자", value:"solo" },
+      { emoji:"👯", label:"친구", value:"friend" },
+      { emoji:"💛", label:"연인", value:"couple" },
+      { emoji:"👨‍👩‍👧", label:"가족", value:"family" },
+  ]},
+  { q: "오늘의 에너지는 어때요?", key: "mood", options: [
+      { emoji:"⚡", label:"활기차게", value:"active" },
+      { emoji:"🎨", label:"몰입해서", value:"make" },
+      { emoji:"🍃", label:"느긋하게", value:"chill" },
+      { emoji:"🛋️", label:"늘어지게", value:"rest" },
+  ]},
+];
+
+// 주말토리 아티클 큐레이션 — 실제 콘텐츠로 교체하세요
+// thumb: 지금은 플레이스홀더(그라데이션 + 이모지). 실제 썸네일 이미지 경로를 넣으려면 img:"assets/..." 추가
+// url: 실제 아티클 링크로 교체
+const ARTICLES = [
+  { title:"주말 아침을 여는 홈카페 레시피 5", emoji:"☕", color:["#FFE3B3","#FFC97A"], tags:["in","rest","chill"], url:"#" },
+  { title:"혼자여도 완벽한 전시 나들이 코스", emoji:"🖼️", color:["#D9C9F2","#B79CE6"], tags:["out","chill","solo"], url:"#" },
+  { title:"성수동 필름사진 스팟 지도", emoji:"📷", color:["#C9EBC6","#9FD89B"], tags:["out","chill"], url:"#" },
+  { title:"집콕러를 위한 정주행 리스트", emoji:"📺", color:["#FFCFCF","#F79E9E"], tags:["in","rest"], url:"#" },
+  { title:"초보도 성공하는 홈베이킹 3", emoji:"🧁", color:["#FFF3B0","#FFE066"], tags:["in","make"], url:"#" },
+  { title:"둘이 가기 좋은 근교 당일치기", emoji:"🚃", color:["#BEE7FB","#84CFF2"], tags:["out","active","couple"], url:"#" },
+  { title:"오늘 저녁 한강 노을 명당 BEST", emoji:"🌅", color:["#FFDDB0","#FFAF87"], tags:["out","chill"], url:"#" },
+  { title:"주말 홈파티 준비물 체크리스트", emoji:"🎉", color:["#FAC1D9","#F58FBB"], tags:["in","active"], url:"#" },
+  { title:"산책이 즐거워지는 플레이리스트", emoji:"🎧", color:["#CBD0F0","#9AA5E0"], tags:["out","active","chill"], url:"#" },
+  { title:"나만의 취향을 채우는 기록 노트", emoji:"✍️", color:["#DCEEC0","#BFDD93"], tags:["in","make","solo"], url:"#" },
+];
+
+// 뽑힌 아이디어와 어울리는 아티클 고르기
+function relatedArticles(idea, n = 3) {
+  const scored = ARTICLES.map(a => {
+    let s = 0;
+    if (a.tags.includes(idea.place)) s += 2;
+    if (a.tags.includes(idea.mood)) s += 2;
+    if (idea.who && idea.who.some(w => a.tags.includes(w))) s += 1;
+    return { a, s };
+  }).sort((x, y) => (y.s - x.s) || (Math.random() - 0.5));
+  return scored.slice(0, n).map(x => x.a);
+}
+
+/* =========================================================
+   상태 & 저장 (localStorage)
+   ========================================================= */
+const STORE = {
+  get name() { return localStorage.getItem("jt_name") || ""; },
+  set name(v) { localStorage.setItem("jt_name", v); },
+  get region() { return localStorage.getItem("jt_region") || ""; },
+  set region(v) { localStorage.setItem("jt_region", v); },
+  get bucket() { try { return JSON.parse(localStorage.getItem("jt_bucket") || "[]"); } catch { return []; } },
+  set bucket(arr) { localStorage.setItem("jt_bucket", JSON.stringify(arr)); },
+};
+let idSeq = Date.now();
+
+/* =========================================================
+   시간대·계절 기반 배경 & 캐릭터
+   ========================================================= */
+function timeContext() {
+  const now = new Date();
+  const h = now.getHours();
+  const m = now.getMonth() + 1;
+
+  let part, sky, hello, weather, charKey, isNight = false;
+  if (h >= 5 && h < 11)       { part="morning";   charKey="search"; sky="linear-gradient(170deg,#FFF3E0,#FFE9F4)"; weather="🌤️ 상쾌한 아침이에요"; hello="좋은 아침이에요"; }
+  else if (h >= 11 && h < 17) { part="afternoon"; charKey="excited"; sky="linear-gradient(170deg,#DAF0F9,#EEF9DE)"; weather="☀️ 나른한 오후예요"; hello="즐거운 오후 보내요"; }
+  else if (h >= 17 && h < 20) { part="evening";   charKey="eat";    sky="linear-gradient(170deg,#FFE0C4,#FFD5E5)"; weather="🌅 노을 지는 저녁이에요"; hello="여유로운 저녁이에요"; }
+  else                        { part="night";     charKey="rest";   sky="linear-gradient(180deg,#4A4E7A,#867BA6)"; weather="🌙 고요한 밤이에요"; hello="포근한 밤이에요"; isNight=true; }
+
+  let season;
+  if (m >= 3 && m <= 5)       season = "🌸 봄";
+  else if (m >= 6 && m <= 8)  season = "🌊 여름";
+  else if (m >= 9 && m <= 11) season = "🍂 가을";
+  else                        season = "❄️ 겨울";
+
+  return { part, sky, hello, weather, season, charKey, isNight };
+}
+
+function applyBackground() {
+  const ctx = timeContext();
+  document.getElementById("app").style.setProperty("--sky", ctx.sky);
+  document.documentElement.style.setProperty("--on-sky", ctx.isNight ? "#F6F1E6" : "#1E1A12");
+  document.documentElement.style.setProperty("--on-sky-soft", ctx.isNight ? "#D6CFE4" : "#8A8172");
+  renderSkyDecor(ctx);
+  return ctx;
+}
+
+function renderSkyDecor(ctx) {
+  const wrap = document.getElementById("skyDecor");
+  if (ctx.isNight) {
+    const stars = [[16,14],[34,9],[62,16],[82,11],[74,30],[24,34],[88,42]];
+    wrap.innerHTML = stars.map(([l,t],i)=>`<span class="star" style="left:${l}%;top:${t}%;animation-delay:${i*0.3}s">✦</span>`).join("");
+  } else {
+    const clouds = [[14,18,60,.85],[72,13,74,.8],[46,50,50,.7],[85,58,44,.65]];
+    wrap.innerHTML = clouds.map(([l,t,s,o]) =>
+      `<span class="blob" style="background:#fff;opacity:${o};left:${l}%;top:${t}%;width:${s}px;height:${s}px"></span>`
+    ).join("");
+  }
+}
+
+/* =========================================================
+   화면 전환
+   ========================================================= */
+function go(screen) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(screen).classList.add("active");
+  document.getElementById("skyDecor").style.display = (screen === "archive" || screen === "home" || screen === "welcome") ? "none" : ""; // 도감·홈·웰컴엔 배경 장식 숨김
+  if (screen === "home") refreshHome();
+  if (screen === "archive") renderArchive();
+  if (screen === "picker") setupPicker();
+  if (screen === "pickerQuiz") renderQuiz();
+  if (screen === "bucket") renderBucket();
+  const el = document.getElementById(screen); if (el) el.scrollTop = 0;
+}
+document.querySelectorAll("[data-go]").forEach(el =>
+  el.addEventListener("click", () => go(el.dataset.go))
+);
+
+/* =========================================================
+   화면 1 — 웰컴
+   ========================================================= */
+const nameInput = document.getElementById("nameInput");
+const regionInput = document.getElementById("regionInput");
+const startBtn = document.getElementById("startBtn");
+
+function validateWelcome() { startBtn.disabled = !(nameInput.value.trim() && regionInput.value); }
+nameInput.addEventListener("input", validateWelcome);
+regionInput.addEventListener("change", validateWelcome);
+
+startBtn.addEventListener("click", () => {
+  STORE.name = nameInput.value.trim();
+  STORE.region = regionInput.value;
+  go("home");
+});
+
+/* =========================================================
+   화면 2 — 홈
+   ========================================================= */
+function refreshHome() {
+  const ctx = applyBackground();
+  const name = STORE.name || "토리";
+  document.getElementById("homeHello").textContent = `${name}님, ${ctx.hello}`;
+
+  // 오늘 날짜 + 주말까지 D-day
+  const now = new Date();
+  const dows = ["일","월","화","수","목","금","토"];
+  const dateStr = `${now.getMonth()+1}월 ${now.getDate()}일 ${dows[now.getDay()]}요일`;
+  const dow = now.getDay(); // 0=일 ... 6=토
+  const dday = (dow === 6 || dow === 0) ? "주말이에요 🎉" : `주말까지 D-${6 - dow}`;
+  document.getElementById("homeDate").innerHTML = `${dateStr} · <b>${dday}</b>`;
+
+  // 홈 히어로 = 대표 토리의 씬(있으면) 또는 캐릭터
+  const hero = getHomeHero();
+  const heroEl = document.getElementById("homeChar");
+  heroEl.src = hero.src;
+  heroEl.classList.toggle("scene", hero.isScene);
+  const cnt = STORE.bucket.length;
+  const done = STORE.bucket.filter(b => b.done).length;
+  document.getElementById("bucketMenuDesc").textContent =
+    cnt ? `${cnt}개 중 ${done}개 달성 중이에요` : "해보고 싶은 걸 기록해요";
+
+  // 도감 아이콘 뱃지 (모은 토리 수)
+  const n = getToris().length;
+  const badge = document.getElementById("archiveBadge");
+  badge.textContent = n;
+  badge.style.display = n ? "grid" : "none";
+}
+
+// 토리 도감 렌더
+function renderArchive() {
+  const owned = new Set(getToris());
+  const map = getToriMap();
+  const rep = localStorage.getItem("jt_repTori");
+  document.getElementById("toriGrid").innerHTML = TORIS.map(t => {
+    const has = owned.has(t.id);
+    if (has) {
+      const lv = toriLevelInfo(map[t.id] || 0);
+      const isRep = rep === t.id;
+      const thumb = t.img
+        ? `<img src="${t.img}" alt="">`
+        : `<div class="ti-ph${t.special ? " special" : ""}">${t.special ? "🏆" : "🐾"}</div>`;
+      return `<div class="tori-cell on${isRep ? " rep" : ""}" data-tori="${t.id}">
+        ${isRep ? '<span class="rep-badge">⭐ 대표</span>' : ""}
+        <div class="tori-thumb">${thumb}</div>
+        <div class="tori-name">${t.name}</div>
+        <div class="tori-gauge"><div class="tori-gauge-fill" style="width:${lv.pct}%"></div></div>
+        <div class="lv-row"><span class="lv-badge">Lv.${lv.level}</span><span class="lv-count">${lv.inLevel}/${lv.step}</span></div>
+      </div>`;
+    }
+    // 잠금: 물음표(스페셜은 무지개) + 이름 + 획득 방법
+    return `<div class="tori-cell off" data-tori="${t.id}">
+      <div class="tori-thumb"><div class="ti-ph locked${t.special ? " special" : ""}">?</div></div>
+      <div class="tori-name">${t.name}</div>
+      <div class="tori-how">${t.how}</div>
+    </div>`;
+  }).join("");
+  document.getElementById("archiveProgress").textContent =
+    `${TORIS.length}마리 중 ${owned.size}마리 모았어요`;
+}
+
+// 대표 토리 → 홈 히어로 (씬 일러스트 우선, 없으면 캐릭터)
+function getHomeHero() {
+  const pick = (id) => {
+    if (!id || !hasTori(id)) return null;
+    const sc = toriScene(id);
+    if (sc) return { src: sc, isScene: true };
+    const t = toriById(id);
+    if (t && t.img) return { src: t.img, isScene: false };
+    return null;
+  };
+  const repId = localStorage.getItem("jt_repTori");
+  let hero = pick(repId);
+  if (!hero) { for (const oid of getToris()) { hero = pick(oid); if (hero) break; } } // 대표 없으면 첫 수집 토리
+  if (!hero) hero = { src: "assets/web/tori-default.png", isScene: false };          // 수집 전 기본 토리
+  return hero;
+}
+function setRepTori(id) {
+  if (!hasTori(id)) return;
+  localStorage.setItem("jt_repTori", id);
+  renderArchive();
+  const t = toriById(id);
+  toast(`'${t.name}'를 대표 토리로 설정했어요! ⭐`);
+}
+document.getElementById("toriGrid").addEventListener("click", (e) => {
+  const onCell = e.target.closest(".tori-cell.on");
+  if (onCell && onCell.dataset.tori) { setRepTori(onCell.dataset.tori); return; }
+  const offCell = e.target.closest(".tori-cell.off");
+  if (offCell && offCell.dataset.tori) {
+    const t = toriById(offCell.dataset.tori);
+    toast(`아직 못 모은 토리예요! 획득 방법 · ${t.how}`);
+  }
+});
+
+document.getElementById("mapCard").addEventListener("click", () => { window.open(MAP_URL, "_blank"); });
+
+/* =========================================================
+   화면 3 — 랜덤뽑기 (타로카드)
+   ========================================================= */
+const cardFan = document.getElementById("cardFan");
+const resultPanel = document.getElementById("resultPanel");
+let lastPicked = null;
+
+function shuffle(a) { return a.map(v => [Math.random(), v]).sort((x,y)=>x[0]-y[0]).map(v=>v[1]); }
+
+function setupPicker() {
+  resultPanel.classList.remove("show");
+  document.getElementById("articleSec").classList.remove("show");
+  document.getElementById("toriGetLabel").className = "tori-get-label";
+  cardFan.className = "card-fan disabled";
+  cardFan.innerHTML = "";
+  const guide = document.getElementById("pickerGuide");
+  guide.textContent = "카드를 섞고 있어요…";
+
+  // 모드별 제목·답변 칩
+  const title = document.getElementById("pickerTitle");
+  const tags = document.getElementById("pickerTags");
+  if (pickMode === "quiz") {
+    title.textContent = "당신에게 딱 맞는 주말 🔮";
+    tags.innerHTML = answerChips();
+    tags.style.display = "flex";
+  } else {
+    title.textContent = "주말 랜덤뽑기 🃏";
+    tags.innerHTML = "";
+    tags.style.display = "none";
+  }
+
+  const pool = (pickerPool && pickerPool.length >= 3) ? pickerPool : IDEAS;
+  const picks = shuffle(pool).slice(0, 3);
+  const offs = [108, 0, -108];  // 가운데로 겹쳐 쌓기(덱)
+  const rots = [-7, 0, 7];
+  const cards = picks.map((idea, i) => {
+    const card = document.createElement("div");
+    card.className = "tarot";
+    card.style.transition = "none";
+    card.style.transform = `translateX(${offs[i]}px) rotate(${rots[i]}deg)`;
+    card.style.zIndex = 3 - i;
+    card.innerHTML = `
+      <div class="face back"><div class="frame"><img src="assets/web/logo-face.svg" alt=""></div></div>
+      <div class="face front">
+        <div>
+          <div class="cardemoji">${idea.emoji}</div>
+          <div class="cardtag">${idea.tag}</div>
+        </div>
+      </div>`;
+    card.addEventListener("click", () => choose(card, idea));
+    cardFan.appendChild(card);
+    return card;
+  });
+
+  void cardFan.offsetWidth;          // 리플로우 강제
+  cardFan.classList.add("shuffling"); // 1) 덱 흔들기
+
+  setTimeout(() => {                  // 2) 딱딱딱 순차로 펼치기
+    cardFan.classList.remove("shuffling");
+    cards.forEach((card, i) => setTimeout(() => dealCard(card), i * 160));
+    setTimeout(() => {
+      cards.forEach(c => { c.style.transition = ""; c.style.transform = ""; c.style.zIndex = ""; });
+      cardFan.classList.remove("disabled");
+      guide.textContent = pickMode === "quiz"
+        ? "답에 맞춰 3장을 골라왔어요. 마음이 가는 한 장을 뽑아보세요"
+        : "마음이 가는 카드 한 장을 골라 탭해보세요";
+    }, 2 * 160 + 480);
+  }, 820);
+}
+
+function dealCard(card) {
+  card.style.transition = "transform .5s cubic-bezier(.34,1.5,.5,1)";
+  requestAnimationFrame(() => { card.style.transform = "translateX(0) rotate(0deg)"; });
+}
+
+function choose(card, idea) {
+  cardFan.classList.add("disabled");
+  lastPicked = idea;
+  [...cardFan.children].forEach(c => { if (c !== card) c.classList.add("dimmed"); });
+  card.classList.add("chosen");
+  document.getElementById("pickerGuide").textContent = "짜잔! 이번 주말은 이거예요 ✨";
+  document.getElementById("resultTag").textContent = idea.tag;
+  document.getElementById("resultIdea").textContent = idea.idea;
+  document.getElementById("resultDesc").textContent = idea.desc;
+
+  // 오늘의 토리 (하루 첫 뽑기 때 자동 획득 / 레벨업)
+  const tori = toriForIdea(idea);
+  const rt = document.getElementById("resultTori");
+  if (tori.img) { rt.src = tori.img; rt.style.display = ""; } else { rt.style.display = "none"; }
+  const label = document.getElementById("toriGetLabel");
+  label.className = "tori-get-label";
+  label.textContent = "";
+  const firstToday = localStorage.getItem("jt_toriDate") !== todayStr();
+  if (firstToday) {
+    localStorage.setItem("jt_toriDate", todayStr());
+    const res = addTori(tori.id);
+    if (res.isNew) {
+      label.textContent = `${tori.name} 획득!`;
+      label.className = "tori-get-label show";
+      setTimeout(() => toast(`새로운 토리 '${tori.name}'를 모았어요! 🎉`), 720);
+    } else {
+      label.textContent = `${tori.name} Lv.${res.level}`;
+      label.className = "tori-get-label show levelup";
+      setTimeout(() => toast(`'${tori.name}' 레벨 업! (Lv.${res.level}) ⬆️`), 720);
+    }
+  }
+  // 그 외(같은 날 두 번째 이후 뽑기)엔 라벨 없음
+
+  // 어울리는 아티클 큐레이션
+  const arts = relatedArticles(idea, 3);
+  const list = document.getElementById("articleList");
+  list.innerHTML = arts.map(a => `
+    <a class="article-card" data-url="${a.url}">
+      <div class="article-thumb" style="background:linear-gradient(145deg,${a.color[0]},${a.color[1]})">${a.emoji}</div>
+      <div class="article-title">${a.title}</div>
+    </a>`).join("");
+  list.querySelectorAll(".article-card").forEach(el => el.addEventListener("click", () => {
+    const u = el.dataset.url;
+    if (u && u !== "#") window.open(u, "_blank");
+    else toast("실제 아티클 링크는 곧 연결돼요 📖");
+  }));
+
+  setTimeout(() => {
+    resultPanel.classList.add("show");
+    document.getElementById("articleSec").classList.add("show");
+  }, 560);
+}
+
+/* ---- 모드 선택 ---- */
+document.getElementById("modeRandom").addEventListener("click", () => {
+  pickMode = "random";
+  pickerPool = IDEAS;          // 완전 랜덤: 전체 풀
+  go("picker");
+});
+document.getElementById("modeQuiz").addEventListener("click", () => {
+  quizStep = 0; quizAnswers = {};
+  go("pickerQuiz");
+});
+
+/* ---- 질문으로 뽑기 ---- */
+let quizStep = 0;
+let quizAnswers = {};
+
+function renderQuiz() {
+  const q = QUIZ[quizStep];
+  document.getElementById("quizProgress").innerHTML =
+    QUIZ.map((_, i) => `<span class="pdot ${i <= quizStep ? "on" : ""}"></span>`).join("");
+  document.getElementById("quizStepLabel").textContent = `질문 ${quizStep + 1} / ${QUIZ.length}`;
+  document.getElementById("quizQuestion").textContent = q.q;
+  const wrap = document.getElementById("quizCards");
+  wrap.innerHTML = "";
+  q.options.forEach((opt, i) => {
+    const c = document.createElement("button");
+    c.className = "quiz-card";
+    c.style.animationDelay = (i * 0.06) + "s";
+    c.innerHTML = `<span class="qemoji">${opt.emoji}</span><span class="qlabel">${opt.label}</span>`;
+    c.addEventListener("click", () => answerQuiz(q.key, opt.value));
+    wrap.appendChild(c);
+  });
+}
+
+function answerQuiz(key, value) {
+  quizAnswers[key] = value;
+  if (quizStep < QUIZ.length - 1) { quizStep++; renderQuiz(); }
+  else finishQuiz();
+}
+
+function scoreIdea(it, a) {
+  let s = 0;
+  if (it.place === a.place) s += 2;
+  if (it.who.includes(a.who)) s += 2;
+  if (it.mood === a.mood) s += 1;
+  return s;
+}
+
+function finishQuiz() {
+  const scored = IDEAS
+    .map(it => ({ it, s: scoreIdea(it, quizAnswers) }))
+    .sort((x, y) => (y.s - x.s) || (Math.random() - 0.5));
+  pickerPool = scored.slice(0, 6).map(x => x.it);  // 상위 매칭 6개 중에서 뽑기
+  pickMode = "quiz";
+  go("picker");
+}
+
+// 선택한 답변을 칩으로 (이모지 + 라벨)
+function answerChips() {
+  return QUIZ.map(q => {
+    const opt = q.options.find(o => o.value === quizAnswers[q.key]);
+    return opt ? `<span class="ptag">${opt.emoji} ${opt.label}</span>` : "";
+  }).join("");
+}
+
+document.getElementById("quizBack").addEventListener("click", () => {
+  if (quizStep > 0) { quizStep--; renderQuiz(); }
+  else go("pickerMode");
+});
+
+document.getElementById("reshuffleBtn").addEventListener("click", setupPicker);
+document.getElementById("saveToBucketBtn").addEventListener("click", () => {
+  if (!lastPicked) return;
+  const list = STORE.bucket;
+  if (list.some(b => b.text === lastPicked.idea)) { toast("이미 버킷에 담겨있어요 😊"); return; }
+  list.unshift({ id: ++idSeq, text: lastPicked.idea, done: false, note: "", doneDate: "" });
+  STORE.bucket = list;
+  toast("버킷리스트에 담았어요! 📝");
+});
+
+/* =========================================================
+   화면 4 — 버킷리스트
+   ========================================================= */
+const bucketList = document.getElementById("bucketList");
+const bucketInput = document.getElementById("bucketInput");
+let bucketFilter = "all"; // "all" | "todo" | "done"
+
+function setBucketFilter(f) {
+  bucketFilter = f;
+  document.querySelectorAll("#bucketFilters .filter-tab").forEach(t =>
+    t.classList.toggle("active", t.dataset.filter === f));
+}
+document.querySelectorAll("#bucketFilters .filter-tab").forEach(tab => {
+  tab.addEventListener("click", () => { setBucketFilter(tab.dataset.filter); renderBucket(); });
+});
+
+function renderBucket() {
+  const items = STORE.bucket;
+  const total = items.length;
+  const done = items.filter(b => b.done).length;
+  const todo = total - done;
+  const pct = total ? Math.round((done/total)*100) : 0;
+  document.getElementById("progressFill").style.width = pct + "%";
+  document.getElementById("progressLabel").textContent =
+    total ? `${total}개 중 ${done}개 달성 · ${pct}%` : "아직 시작 전이에요";
+
+  // 필터별 개수
+  document.getElementById("cntAll").textContent = total;
+  document.getElementById("cntTodo").textContent = todo;
+  document.getElementById("cntDone").textContent = done;
+
+  if (!total) {
+    bucketList.innerHTML = `
+      <div class="empty-state">
+        <img src="assets/web/tori-read.png" alt="" />
+        <p>아직 버킷이 비어있어요.<br/>해보고 싶은 주말을 하나 적어볼까요?</p>
+      </div>`;
+    return;
+  }
+
+  // 필터 적용
+  let shown = items;
+  if (bucketFilter === "todo") shown = items.filter(b => !b.done);
+  else if (bucketFilter === "done") shown = items.filter(b => b.done);
+
+  if (!shown.length) {
+    const msg = bucketFilter === "done"
+      ? "아직 완료한 버킷이 없어요.<br/>하나씩 이뤄봐요! 💪"
+      : "도전 중인 버킷이 없어요.<br/>다 이뤘거나, 새로 추가해볼까요? 🎉";
+    bucketList.innerHTML = `<div class="empty-state"><p>${msg}</p></div>`;
+    return;
+  }
+
+  bucketList.innerHTML = "";
+  shown.forEach(item => {
+    const li = document.createElement("li");
+    li.className = "bucket-item" + (item.done ? " done" : "");
+    li.innerHTML = `
+      <div class="check">✓</div>
+      <div class="bucket-body">
+        <div class="txt"></div>
+        <div class="note ${item.done && item.note ? "has" : ""}">
+          <span class="note-body"></span>
+          ${item.doneDate ? `<span class="note-date">✔ ${item.doneDate}</span>` : ""}
+        </div>
+      </div>
+      <button class="del-btn">×</button>`;
+    li.querySelector(".txt").textContent = item.text;
+    if (item.note) li.querySelector(".note-body").textContent = item.note;
+    li.querySelector(".check").addEventListener("click", () => toggleDone(item.id));
+    li.querySelector(".del-btn").addEventListener("click", () => removeItem(item.id));
+    bucketList.appendChild(li);
+  });
+}
+
+function addBucket() {
+  const v = bucketInput.value.trim();
+  if (!v) return;
+  const list = STORE.bucket;
+  list.unshift({ id: ++idSeq, text: v, done: false, note: "", doneDate: "" });
+  STORE.bucket = list;
+  bucketInput.value = "";
+  setBucketFilter("all");   // 새로 추가한 항목이 보이도록
+  renderBucket();
+}
+document.getElementById("bucketAddBtn").addEventListener("click", addBucket);
+bucketInput.addEventListener("keydown", e => { if (e.key === "Enter") addBucket(); });
+
+let pendingDoneId = null;
+function toggleDone(id) {
+  const list = STORE.bucket;
+  const item = list.find(b => b.id === id);
+  if (!item) return;
+  if (!item.done) {
+    pendingDoneId = id;
+    document.getElementById("doneNote").value = "";
+    document.getElementById("doneSheet").classList.add("show");
+  } else {
+    item.done = false; item.note = ""; item.doneDate = "";
+    STORE.bucket = list;
+    renderBucket();
+  }
+}
+function removeItem(id) { STORE.bucket = STORE.bucket.filter(b => b.id !== id); renderBucket(); }
+
+function fmtDate() {
+  const d = new Date();
+  return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,"0")}.${String(d.getDate()).padStart(2,"0")}`;
+}
+function finalizeDone(note) {
+  const list = STORE.bucket;
+  const item = list.find(b => b.id === pendingDoneId);
+  if (item) { item.done = true; item.note = note || ""; item.doneDate = fmtDate(); }
+  STORE.bucket = list;
+  document.getElementById("doneSheet").classList.remove("show");
+  pendingDoneId = null;
+  renderBucket();
+
+  // 버킷 달성 마일스톤 → 스페셜 토리
+  const doneCount = STORE.bucket.filter(b => b.done).length;
+  const spId = BUCKET_MILESTONE[doneCount];
+  if (spId && addTori(spId).isNew) {
+    const sp = toriById(spId);
+    setTimeout(() => toast(`🏆 스페셜 토리 '${sp.name}' 획득! (버킷 ${doneCount}개 달성)`), 400);
+  } else {
+    toast("기록으로 남겼어요 🎉");
+  }
+}
+document.getElementById("doneSave").addEventListener("click", () => finalizeDone(document.getElementById("doneNote").value.trim()));
+document.getElementById("doneSkip").addEventListener("click", () => finalizeDone(""));
+document.getElementById("doneSheet").addEventListener("click", e => {
+  if (e.target.id === "doneSheet") { pendingDoneId = null; document.getElementById("doneSheet").classList.remove("show"); }
+});
+
+/* =========================================================
+   토스트
+   ========================================================= */
+let toastTimer;
+function toast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 1900);
+}
+
+/* =========================================================
+   초기 진입
+   ========================================================= */
+(function ensureBaseTori() {
+  const m = getToriMap();
+  if (!m.base) { m.base = 1; localStorage.setItem("jt_toris", JSON.stringify(m)); } // 기본토리 항상 보유
+  if (!localStorage.getItem("jt_repTori")) localStorage.setItem("jt_repTori", "base"); // 첫 접속 대표
+})();
+
+(function init() {
+  const ctx = applyBackground();
+  document.getElementById("welcomeChar").src = "assets/web/welcome-hero.png";
+  if (STORE.name && STORE.region) go("home");
+  else {
+    document.getElementById("welcome").classList.add("active");
+    document.getElementById("skyDecor").style.display = "none"; // 웰컴 배경 장식 숨김
+  }
+})();
+</script>
+</body>
+</html>

@@ -483,7 +483,7 @@
       <div class="badge">🔑 NFC 키링 · 주말토리</div>
       <h1><b>주말</b>에 뭐 하지?</h1>
       <p class="sub">고민은 그만! 주말토리가 같이 정해줄게요.<br/>먼저 인사부터 나눠요 :)</p>
-      <img class="hero tori" id="welcomeChar" src="assets/web/welcome-hero.png" alt="주말토리" />
+      <img class="hero tori" id="welcomeChar" src="welcome-hero.png" alt="주말토리" />
 
       <div class="field">
         <label for="nameInput">뭐라고 부를까요?</label>
@@ -504,7 +504,7 @@
       <button class="btn-primary" id="startBtn" disabled>주말토리랑 시작하기</button>
 
       <div class="brandline">
-        <img src="assets/web/logo-face.svg" alt="" />
+        <img src="logo-face.svg" alt="" />
         <span>weekend with tori</span>
       </div>
     </div>
@@ -513,7 +513,7 @@
   <!-- ===================== 화면 2: 홈 ===================== -->
   <section class="screen" id="home">
     <button class="archive-btn" id="archiveBtn" data-go="archive" aria-label="토리 도감">
-      <img src="assets/web/logo-face.svg" alt="" />
+      <img src="logo-face.svg" alt="" />
       <span class="archive-badge" id="archiveBadge">0</span>
     </button>
     <div class="home-top">
@@ -525,7 +525,7 @@
 
     <div class="home-hero">
       <div class="speech">뭐하고 놀아볼까요?</div>
-      <img class="hero tori" id="homeChar" src="assets/web/tori-basic.png" alt="주말토리" />
+      <img class="hero tori" id="homeChar" src="tori-basic.png" alt="주말토리" />
     </div>
 
     <div class="menu-grid">
@@ -621,7 +621,7 @@
     <div class="card-fan" id="cardFan"></div>
 
     <div class="result-panel" id="resultPanel">
-      <img class="pop-tori" id="resultTori" src="assets/web/tori-excited.png" alt="" />
+      <img class="pop-tori" id="resultTori" src="tori-excited.png" alt="" />
       <div class="tori-get-label" id="toriGetLabel"></div>
       <span class="tag" id="resultTag">이번 주말은</span>
       <div class="idea" id="resultIdea"></div>
@@ -649,7 +649,7 @@
         <h2>내 주말 버킷리스트</h2>
         <p>해보고 싶은 주말을 적고,<br/>이룬 뒤엔 기록을 남겨요 ✏️</p>
       </div>
-      <img class="doodle" src="assets/web/doodle-todo.png" alt="주말 할 일: 놀기!" />
+      <img class="doodle" src="doodle-todo.png" alt="주말 할 일: 놀기!" />
     </div>
 
     <div class="progress-wrap">
@@ -701,13 +701,13 @@ const MAP_URL = "https://joomaltory.com/map"; // TODO: 실제 주말지도 URL
 
 // 캐릭터 이미지
 const TORI = {
-  search:  "assets/web/tori-search.png",  // 호기심토리
-  basic:   "assets/web/tori-basic.png",   // 기본
-  eat:     "assets/web/tori-eat.png",     // 먹토리
-  read:    "assets/web/tori-read.png",    // 감상토리
-  travel:  "assets/web/tori-travel.png",  // 여행토리
-  rest:    "assets/web/tori-rest.png",    // 휴식토리
-  excited: "assets/web/tori-excited.png", // 흥토리
+  search:  "tori-search.png",  // 호기심토리
+  basic:   "tori-basic.png",   // 기본
+  eat:     "tori-eat.png",     // 먹토리
+  read:    "tori-read.png",    // 감상토리
+  travel:  "tori-travel.png",  // 여행토리
+  rest:    "tori-rest.png",    // 휴식토리
+  excited: "tori-excited.png", // 흥토리
 };
 
 // 주말 아이디어 풀 — 실제 콘텐츠로 자유롭게 추가/수정하세요
@@ -748,18 +748,18 @@ let pickMode = "random"; // "random" | "quiz"
    img가 null인 토리는 이미지 준비 중(도감에 잠금 표시) — 나중에 이미지 넣고 매칭
    ========================================================= */
 const TORIS = [
-  { id:"base",    name:"기본토리",   img:"assets/web/tori-default.png", how:"기본 제공" },
-  { id:"curious", name:"호기심토리", img:"assets/web/tori-curious.png", how:"랜덤뽑기" },
-  { id:"travel",  name:"여행토리",   img:"assets/web/tori-travel.png",  how:"랜덤뽑기" },
-  { id:"eat",     name:"먹토리",     img:"assets/web/tori-eat.png",     how:"랜덤뽑기" },
-  { id:"read",    name:"감상토리",   img:"assets/web/tori-read.png",    how:"랜덤뽑기" },
-  { id:"rest",    name:"휴식토리",   img:"assets/web/tori-rest.png",    how:"랜덤뽑기" },
-  { id:"excited", name:"흥토리",     img:"assets/web/tori-excited.png", how:"랜덤뽑기" },
-  { id:"sabujak", name:"사부작토리", img:"assets/web/tori-sabujak.png", how:"랜덤뽑기" },
-  { id:"home",    name:"집토리",     img:"assets/web/tori-sabujak.png", how:"랜덤뽑기" },
+  { id:"base",    name:"기본토리",   img:"tori-default.png", how:"기본 제공" },
+  { id:"curious", name:"호기심토리", img:"tori-curious.png", how:"랜덤뽑기" },
+  { id:"travel",  name:"여행토리",   img:"tori-travel.png",  how:"랜덤뽑기" },
+  { id:"eat",     name:"먹토리",     img:"tori-eat.png",     how:"랜덤뽑기" },
+  { id:"read",    name:"감상토리",   img:"tori-read.png",    how:"랜덤뽑기" },
+  { id:"rest",    name:"휴식토리",   img:"tori-rest.png",    how:"랜덤뽑기" },
+  { id:"excited", name:"흥토리",     img:"tori-excited.png", how:"랜덤뽑기" },
+  { id:"sabujak", name:"사부작토리", img:"tori-sabujak.png", how:"랜덤뽑기" },
+  { id:"home",    name:"집토리",     img:"tori-sabujak.png", how:"랜덤뽑기" },
   { id:"honto",   name:"혼토리",     img:null, how:"랜덤뽑기" },
   { id:"exhibit", name:"전시토리",   img:null, how:"랜덤뽑기" },
-  { id:"book",    name:"책토리",     img:"assets/web/tori-read.png",    how:"랜덤뽑기" },
+  { id:"book",    name:"책토리",     img:"tori-read.png",    how:"랜덤뽑기" },
   { id:"sp10",    name:"스페셜토리 Ⅰ", img:null, how:"버킷 10개 달성",   special:true },
   { id:"sp50",    name:"스페셜토리 Ⅱ", img:null, how:"버킷 50개 달성",   special:true },
   { id:"sp100",   name:"스페셜토리 Ⅲ", img:null, how:"버킷 100개 달성",  special:true },
@@ -781,15 +781,15 @@ const toriForIdea = idea => toriById(TAG_TORI[idea.tag] || "home");
 
 // 토리별 홈 배경 씬 일러스트 (있는 토리만) — 파일 추가하면 여기 매핑
 const TORI_SCENE = {
-  base:    "assets/web/scene-forest.png",
-  curious: "assets/web/scene-curious.png",
-  travel:  "assets/web/scene-travel.png",
-  eat:     "assets/web/scene-eat.png",
-  excited: "assets/web/scene-excited.png",
-  home:    "assets/web/scene-home.png",
-  book:    "assets/web/scene-book.png",
-  honto:   "assets/web/scene-honto.png",
-  rest:    "assets/web/scene-rest.png",
+  base:    "scene-forest.png",
+  curious: "scene-curious.png",
+  travel:  "scene-travel.png",
+  eat:     "scene-eat.png",
+  excited: "scene-excited.png",
+  home:    "scene-home.png",
+  book:    "scene-book.png",
+  honto:   "scene-honto.png",
+  rest:    "scene-rest.png",
 };
 const toriScene = id => TORI_SCENE[id] || null;
 
@@ -1045,7 +1045,7 @@ function getHomeHero() {
   const repId = localStorage.getItem("jt_repTori");
   let hero = pick(repId);
   if (!hero) { for (const oid of getToris()) { hero = pick(oid); if (hero) break; } } // 대표 없으면 첫 수집 토리
-  if (!hero) hero = { src: "assets/web/tori-default.png", isScene: false };          // 수집 전 기본 토리
+  if (!hero) hero = { src: "tori-default.png", isScene: false };          // 수집 전 기본 토리
   return hero;
 }
 function setRepTori(id) {
@@ -1109,7 +1109,7 @@ function setupPicker() {
     card.style.transform = `translateX(${offs[i]}px) rotate(${rots[i]}deg)`;
     card.style.zIndex = 3 - i;
     card.innerHTML = `
-      <div class="face back"><div class="frame"><img src="assets/web/logo-face.svg" alt=""></div></div>
+      <div class="face back"><div class="frame"><img src="logo-face.svg" alt=""></div></div>
       <div class="face front">
         <div>
           <div class="cardemoji">${idea.emoji}</div>
@@ -1308,7 +1308,7 @@ function renderBucket() {
   if (!total) {
     bucketList.innerHTML = `
       <div class="empty-state">
-        <img src="assets/web/tori-read.png" alt="" />
+        <img src="tori-read.png" alt="" />
         <p>아직 버킷이 비어있어요.<br/>해보고 싶은 주말을 하나 적어볼까요?</p>
       </div>`;
     return;
@@ -1431,7 +1431,7 @@ function toast(msg) {
 
 (function init() {
   const ctx = applyBackground();
-  document.getElementById("welcomeChar").src = "assets/web/welcome-hero.png";
+  document.getElementById("welcomeChar").src = "welcome-hero.png";
   if (STORE.name && STORE.region) go("home");
   else {
     document.getElementById("welcome").classList.add("active");

@@ -187,8 +187,10 @@
     color: var(--ink);
     font-size: 12.5px; font-weight: 600; text-align: center; line-height: 1.35; letter-spacing: -.2px;
     padding: 8px 14px; border-radius: 14px; margin-bottom: 12px;
-    box-shadow: var(--shadow-sm);
+    box-shadow: var(--shadow-sm); cursor: pointer; user-select: none;
   }
+  .speech.pop { animation: speechPop .32s ease; }
+  @keyframes speechPop { 0% { transform: scale(.8); opacity: .3; } 60% { transform: scale(1.06); } 100% { transform: scale(1); opacity: 1; } }
   .speech::after {
     content: ""; position: absolute; left: 50%; bottom: -8px; transform: translateX(-50%);
     border-left: 8px solid transparent; border-right: 8px solid transparent;
@@ -524,8 +526,8 @@
     </div>
 
     <div class="home-hero">
-      <div class="speech">뭐하고 놀아볼까요?</div>
-      <img class="hero tori" id="homeChar" src="tori-basic.png" alt="주말토리" />
+      <div class="speech" id="homeSpeech">뭐하고 놀아볼까요?</div>
+      <img class="hero tori" id="homeChar" src="tori-default.png" alt="주말토리" />
     </div>
 
     <div class="menu-grid">
@@ -699,17 +701,6 @@
 // 👉 주말지도 실제 URL로 바꿔주세요 (지금은 임시)
 const MAP_URL = "https://joomaltory.com/map"; // TODO: 실제 주말지도 URL
 
-// 캐릭터 이미지
-const TORI = {
-  search:  "tori-search.png",  // 호기심토리
-  basic:   "tori-basic.png",   // 기본
-  eat:     "tori-eat.png",     // 먹토리
-  read:    "tori-read.png",    // 감상토리
-  travel:  "tori-travel.png",  // 여행토리
-  rest:    "tori-rest.png",    // 휴식토리
-  excited: "tori-excited.png", // 흥토리
-};
-
 // 주말 아이디어 풀 — 실제 콘텐츠로 자유롭게 추가/수정하세요
 // place: in(집)/out(집밖) · who: 어울리는 동행 · mood: active(활기)/make(몰입)/chill(느긋)/rest(늘어짐)
 const IDEAS = [
@@ -752,29 +743,27 @@ const TORIS = [
   { id:"curious", name:"호기심토리", img:"tori-curious.png", how:"랜덤뽑기" },
   { id:"travel",  name:"여행토리",   img:"tori-travel.png",  how:"랜덤뽑기" },
   { id:"eat",     name:"먹토리",     img:"tori-eat.png",     how:"랜덤뽑기" },
-  { id:"read",    name:"감상토리",   img:"tori-read.png",    how:"랜덤뽑기" },
+  { id:"read",    name:"감상토리",   img:"tori-gamsang.png", how:"랜덤뽑기" },
   { id:"rest",    name:"휴식토리",   img:"tori-rest.png",    how:"랜덤뽑기" },
   { id:"excited", name:"흥토리",     img:"tori-excited.png", how:"랜덤뽑기" },
   { id:"sabujak", name:"사부작토리", img:"tori-sabujak.png", how:"랜덤뽑기" },
-  { id:"home",    name:"집토리",     img:"tori-sabujak.png", how:"랜덤뽑기" },
-  { id:"honto",   name:"혼토리",     img:null, how:"랜덤뽑기" },
-  { id:"exhibit", name:"전시토리",   img:null, how:"랜덤뽑기" },
+  { id:"home",    name:"집토리",     img:"tori-home.png",    how:"랜덤뽑기" },
+  { id:"honto",   name:"혼토리",     img:"tori-honto.png",   how:"랜덤뽑기" },
   { id:"book",    name:"책토리",     img:"tori-read.png",    how:"랜덤뽑기" },
-  { id:"sp10",    name:"스페셜토리 Ⅰ", img:null, how:"버킷 10개 달성",   special:true },
-  { id:"sp50",    name:"스페셜토리 Ⅱ", img:null, how:"버킷 50개 달성",   special:true },
-  { id:"sp100",   name:"스페셜토리 Ⅲ", img:null, how:"버킷 100개 달성",  special:true },
-  { id:"sp500",   name:"스페셜토리 Ⅳ", img:null, how:"버킷 500개 달성",  special:true },
-  { id:"sp1000",  name:"스페셜토리 Ⅴ", img:null, how:"버킷 1000개 달성", special:true },
+  { id:"sp10",    name:"스페셜토리 Ⅰ", img:"tori-sp1.png", how:"버킷 10개 달성",   special:true },
+  { id:"sp50",    name:"스페셜토리 Ⅱ", img:"tori-sp2.png", how:"버킷 50개 달성",   special:true },
+  { id:"sp100",   name:"스페셜토리 Ⅲ", img:"tori-sp3.png", how:"버킷 100개 달성",  special:true },
+  { id:"sp500",   name:"스페셜토리 Ⅳ", img:"tori-sp4.png", how:"버킷 500개 달성",  special:true },
 ];
 
 // 카드 성격(tag) → 토리 (지금은 이미지 있는 8종에 매핑)
 const TAG_TORI = {
   "감성 산책":"curious","집콕 힐링":"home","자연 충전":"travel","미식 탐험":"eat",
-  "취향 수집":"sabujak","물멍 타임":"rest","몸 깨우기":"excited","문화 충전":"read",
-  "손끝 몰입":"sabujak","책과 함께":"read","밤 산책":"travel","로컬 여행":"travel",
+  "취향 수집":"sabujak","물멍 타임":"rest","몸 깨우기":"excited","문화 충전":"honto",
+  "손끝 몰입":"sabujak","책과 함께":"book","밤 산책":"travel","로컬 여행":"travel",
   "달콤 휴식":"eat","감성 기록":"read","동네 재발견":"curious","집콕 파티":"excited",
   "정주행":"read","홈 베이킹":"sabujak","공간 리셋":"home","홈트 타임":"excited",
-  "보드게임":"excited","요리 도전":"eat",
+  "보드게임":"home","요리 도전":"eat",
 };
 const toriById = id => TORIS.find(t => t.id === id);
 const toriForIdea = idea => toriById(TAG_TORI[idea.tag] || "home");
@@ -785,6 +774,7 @@ const TORI_SCENE = {
   curious: "scene-curious.png",
   travel:  "scene-travel.png",
   eat:     "scene-eat.png",
+  read:    "scene-read.png",
   excited: "scene-excited.png",
   home:    "scene-home.png",
   book:    "scene-book.png",
@@ -794,7 +784,7 @@ const TORI_SCENE = {
 const toriScene = id => TORI_SCENE[id] || null;
 
 // 버킷 달성 마일스톤 → 스페셜 토리
-const BUCKET_MILESTONE = { 10:"sp10", 50:"sp50", 100:"sp100", 500:"sp500", 1000:"sp1000" };
+const BUCKET_MILESTONE = { 10:"sp10", 50:"sp50", 100:"sp100", 500:"sp500" };
 
 // 수집 저장 (localStorage) — {toriId: 뽑은 횟수} 맵으로 레벨 관리
 const LEVEL_STEP = 5; // 5번 모을 때마다 레벨업
@@ -970,8 +960,39 @@ startBtn.addEventListener("click", () => {
 /* =========================================================
    화면 2 — 홈
    ========================================================= */
+// 홈 말풍선 메시지 (랜덤 + 탭할 때마다 전환) — 자유롭게 추가/수정하세요
+const SPEECHES = [
+  "뭐하고 놀아볼까요?", "오늘은 어디 가볼까요?", "주말, 그냥 보내기 아쉽죠?",
+  "심심하면 카드 한 장 뽑아요!", "이번 주말 계획 있어요?", "나랑 같이 정해볼래요?",
+  "집콕도 좋고 나들이도 좋아요", "무기력할 땐 일단 밖으로!", "오늘 기분은 좀 어때요?",
+  "소소한 행복 찾으러 가요", "뭐든 좋으니 하나만 골라봐요", "주말엔 나를 위한 시간!",
+  "커피 한 잔 어때요? ☕", "날씨 좋으면 산책 고고!", "뒹굴뒹굴도 훌륭한 계획!",
+  "새로운 거 하나 도전해볼까요?", "오늘 하루 어떻게 채울까요?", "고민되면 나한테 물어봐요!",
+  "주말은 짧으니까 알차게!", "맛있는 거 먹으러 갈까요? 🍜", "문득 떠나고 싶지 않아요?",
+  "작은 모험 하나 어때요?", "쉬는 것도 열심히 쉬어요", "좋아하는 거 실컷 해요",
+  "주말은 원래 노는 거예요", "오늘은 뭐가 땡겨요?", "함께라면 뭐든 즐거워요",
+  "미뤄둔 거 하나 해치울까요?", "설레는 주말 만들어봐요", "자, 오늘의 주말 뽑아볼까요?",
+  "뭐하지 고민, 나한테 맡겨요!", "근처에 숨은 명소 있을지도?", "노을 보러 갈 사람~ 🌅",
+  "오늘만큼은 나에게 집중!", "별거 아닌 게 별거예요", "지금 이 순간을 즐겨요",
+  "주말 감성 충전하러 가요", "뭐부터 해볼까 두근두근", "게으름도 가끔은 필요해요",
+  "소확행 하나 챙겨가요", "톡 누르면 또 바뀌어요!", "오늘 하루도 잘 놀아봐요!",
+];
+let _speechIdx = -1;
+function setRandomSpeech() {
+  const el = document.getElementById("homeSpeech");
+  if (!el) return;
+  let i;
+  do { i = Math.floor(Math.random() * SPEECHES.length); } while (SPEECHES.length > 1 && i === _speechIdx);
+  _speechIdx = i;
+  el.textContent = SPEECHES[i];
+  el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop");
+}
+// 캐릭터·말풍선 아무 데나 탭하면 메시지 전환
+document.querySelector("#home .home-hero").addEventListener("click", setRandomSpeech);
+
 function refreshHome() {
   const ctx = applyBackground();
+  setRandomSpeech(); // 접속 시 랜덤 노출
   const name = STORE.name || "토리";
   document.getElementById("homeHello").textContent = `${name}님, ${ctx.hello}`;
 

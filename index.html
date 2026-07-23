@@ -342,7 +342,8 @@
     transition: transform .12s ease, box-shadow .2s ease; cursor: pointer;
   }
   .article-card:active { transform: scale(.98); box-shadow: var(--shadow); }
-  .article-thumb { width: 66px; height: 66px; flex-shrink: 0; border-radius: 14px; display: grid; place-items: center; font-size: 30px; }
+  .article-thumb { width: 66px; height: 66px; flex-shrink: 0; border-radius: 14px; display: grid; place-items: center; font-size: 30px; overflow: hidden; }
+  .article-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .article-title { font-size: 14px; font-weight: 700; line-height: 1.4; letter-spacing: -0.3px; word-break: keep-all; }
 
   /* 토리 획득 텍스트 (캐릭터 이미지 위) */
@@ -379,6 +380,14 @@
   .archive-head { text-align: center; margin: 6px 0 20px; }
   .archive-head h2 { font-size: 23px; font-weight: 800; letter-spacing: -0.7px; color: var(--on-sky); }
   .archive-head p { font-size: 13px; font-weight: 800; color: var(--on-sky-soft); margin-top: 8px; }
+  .archive-head .archive-guide {
+    margin-top: 10px;
+    font-size: 11.5px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--on-sky-soft);
+    opacity: 0.65;
+  }
   .archive-hint { font-size: 12px !important; font-weight: 700 !important; color: var(--coral-deep) !important; margin-top: 6px !important; }
   .tori-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 11px; padding-bottom: 26px; }
   .tori-cell { position: relative; background: var(--paper); border-radius: 18px; padding: 13px 6px 11px; text-align: center; box-shadow: var(--shadow-sm); border: 2px solid transparent; }
@@ -565,6 +574,7 @@
     <div class="archive-head">
       <h2>토리 도감 🧸</h2>
       <p id="archiveProgress">0마리 모았어요</p>
+      <p class="archive-guide">ⓘ 토리는 하루에 한 번, 주말랜덤뽑기로 만날 수 있어요</p>
     </div>
     <div class="tori-grid" id="toriGrid"></div>
   </section>
@@ -840,16 +850,9 @@ const QUIZ = [
 // thumb: 지금은 플레이스홀더(그라데이션 + 이모지). 실제 썸네일 이미지 경로를 넣으려면 img:"assets/..." 추가
 // url: 실제 아티클 링크로 교체
 const ARTICLES = [
-  { title:"주말 아침을 여는 홈카페 레시피 5", emoji:"☕", color:["#FFE3B3","#FFC97A"], tags:["in","rest","chill"], url:"#" },
-  { title:"혼자여도 완벽한 전시 나들이 코스", emoji:"🖼️", color:["#D9C9F2","#B79CE6"], tags:["out","chill","solo"], url:"#" },
-  { title:"성수동 필름사진 스팟 지도", emoji:"📷", color:["#C9EBC6","#9FD89B"], tags:["out","chill"], url:"#" },
-  { title:"집콕러를 위한 정주행 리스트", emoji:"📺", color:["#FFCFCF","#F79E9E"], tags:["in","rest"], url:"#" },
-  { title:"초보도 성공하는 홈베이킹 3", emoji:"🧁", color:["#FFF3B0","#FFE066"], tags:["in","make"], url:"#" },
-  { title:"둘이 가기 좋은 근교 당일치기", emoji:"🚃", color:["#BEE7FB","#84CFF2"], tags:["out","active","couple"], url:"#" },
-  { title:"오늘 저녁 한강 노을 명당 BEST", emoji:"🌅", color:["#FFDDB0","#FFAF87"], tags:["out","chill"], url:"#" },
-  { title:"주말 홈파티 준비물 체크리스트", emoji:"🎉", color:["#FAC1D9","#F58FBB"], tags:["in","active"], url:"#" },
-  { title:"산책이 즐거워지는 플레이리스트", emoji:"🎧", color:["#CBD0F0","#9AA5E0"], tags:["out","active","chill"], url:"#" },
-  { title:"나만의 취향을 채우는 기록 노트", emoji:"✍️", color:["#DCEEC0","#BFDD93"], tags:["in","make","solo"], url:"#" },
+  { title:"드디어 복숭아 시즌이숭🍑 복숭아 빙수 성지 6", img:"article-1.webp", emoji:"🍑", color:["#FFDDE4","#FFB2C6"], tags:["out","eat","chill"], url:"https://joomaltory.com/feed/cmrbvu6710008ggx7hrxj0827" },
+  { title:"장마철에도 뽀송뽀송🫧 전국 이색 도서관", img:"article-2.webp", emoji:"📚", color:["#D2ECF7","#9FD3EB"], tags:["out","chill","rest"], url:"https://joomaltory.com/feed/cmrd4vj4i000510logxx18h54" },
+  { title:"아이보리 매직🍶 서울 이색 막걸리 맛집 4", img:"article-3.webp", emoji:"🍶", color:["#F4EAD0","#E6D2A0"], tags:["out","eat","active"], url:"https://joomaltory.com/feed/cmqrv5vxl0002fysa2ggv6tar" },
 ];
 
 // 뽑힌 아이디어와 어울리는 아티클 고르기
@@ -1086,7 +1089,7 @@ document.getElementById("toriGrid").addEventListener("click", (e) => {
   }
 });
 
-document.getElementById("mapCard").addEventListener("click", () => { window.open(MAP_URL, "_blank"); });
+document.getElementById("mapCard").addEventListener("click", () => { window.location.href = MAP_URL; });
 
 /* =========================================================
    화면 3 — 랜덤뽑기 (타로카드)
@@ -1201,12 +1204,14 @@ function choose(card, idea) {
   const list = document.getElementById("articleList");
   list.innerHTML = arts.map(a => `
     <a class="article-card" data-url="${a.url}">
-      <div class="article-thumb" style="background:linear-gradient(145deg,${a.color[0]},${a.color[1]})">${a.emoji}</div>
+      <div class="article-thumb" style="background:linear-gradient(145deg,${a.color[0]},${a.color[1]})">${
+        a.img ? `<img src="${a.img}" alt="" loading="lazy" />` : a.emoji
+      }</div>
       <div class="article-title">${a.title}</div>
     </a>`).join("");
   list.querySelectorAll(".article-card").forEach(el => el.addEventListener("click", () => {
     const u = el.dataset.url;
-    if (u && u !== "#") window.open(u, "_blank");
+    if (u && u !== "#") window.location.href = u;
     else toast("실제 아티클 링크는 곧 연결돼요 📖");
   }));
 

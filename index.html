@@ -215,6 +215,7 @@
   .menu-thumb.c-yellow { background: #FFF1BF; }
   .menu-thumb.c-mint   { background: #D8F3DE; }
   .menu-thumb.c-lime   { background: #EDFAC4; }
+  .menu-thumb.c-coral  { background: #FFE0D6; }
   .menu-text .t { font-size: 17px; font-weight: 800; letter-spacing: -0.5px; }
   .menu-text .d { font-size: 12.5px; color: var(--ink-soft); margin-top: 3px; font-weight:600; }
   .menu-arrow { margin-left: auto; color: #D9CDB8; font-size: 22px; font-weight:800; }
@@ -255,8 +256,8 @@
   .card-fan.disabled .tarot { pointer-events: none; }
   .tarot.chosen { transform: rotateY(180deg) scale(1.06); z-index: 2; }
   .tarot.dimmed { opacity: .26; transform: scale(.86); }
-  .tarot .front .cardtag { font-size: 12px; font-weight: 500; color: var(--ink); text-align:center; }
-  .tarot .front .cardemoji { font-size: 30px; text-align:center; margin-bottom:4px; }
+  .tarot .front .cardtag { font-size: 12px; font-weight: 500; color: var(--ink); text-align:center; line-height: 1.35; word-break: keep-all; }
+  .tarot .front .cardtori { display: block; width: 52px; height: 52px; object-fit: contain; margin: 0 auto 6px; }
 
   .result-panel {
     position: relative;
@@ -440,6 +441,31 @@
   .add-area { margin-top: 16px; }
   .list-section { margin-top: 24px; padding-top: 22px; border-top: 1.5px solid rgba(140,120,90,.18); }
 
+  /* 오늘의 퀘스트 */
+  .quest-head { margin-top: 12px; }
+  .quest-head .date-line { font-size: 12px; font-weight: 700; color: var(--on-sky-soft); margin-bottom: 5px; letter-spacing: -0.2px; }
+  .quest-head .date-line b { color: var(--coral); font-weight: 800; }
+  .quest-head h2 { font-size: 23px; font-weight: 800; letter-spacing: -0.7px; color: var(--on-sky); }
+  .streak-badge { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; padding: 8px 14px; font-size: 13px; font-weight: 800; color: var(--coral-deep); background: #FFE7DF; border-radius: 100px; letter-spacing: -0.2px; }
+  .quest-card { position: relative; margin-top: 18px; background: #fff; border-radius: 24px; padding: 30px 22px; box-shadow: 0 12px 28px rgba(150,110,70,.14); border: 2.5px solid #FFF0BF; text-align: center; animation: quizCardIn .4s ease both; }
+  .quest-card .q-emoji { font-size: 52px; line-height: 1; }
+  .quest-card .q-label { display: inline-block; margin: 14px 0 9px; font-size: 11px; font-weight: 800; letter-spacing: 0.5px; color: var(--coral); background: #FFF3B0; padding: 5px 12px; border-radius: 100px; }
+  .quest-card .q-text { font-size: 19px; font-weight: 800; line-height: 1.5; letter-spacing: -0.4px; color: var(--ink); word-break: keep-all; }
+  .quest-card.done { border-color: #BFE9A6; background: linear-gradient(180deg,#F5FFEC,#fff); }
+  .quest-photo { margin-top: 16px; border-radius: 16px; width: 100%; max-height: 240px; object-fit: cover; display: block; }
+  .quest-done-tag { margin-top: 16px; font-size: 15.5px; font-weight: 800; color: #52B14E; letter-spacing: -0.3px; }
+  .quest-actions { margin-top: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .quest-actions .btn-primary { width: 100%; }
+  .photo-btn { border: 2.5px dashed #E7D9BE; background: #fff; color: var(--ink-soft); font-weight: 800; font-size: 14px; border-radius: 16px; padding: 13px; transition: transform .12s ease; }
+  .photo-btn:active { transform: scale(.98); }
+  .quest-week { display: flex; justify-content: space-between; gap: 5px; margin-top: 26px; padding-top: 22px; border-top: 1.5px solid rgba(140,120,90,.18); }
+  .qw-day { flex: 1; text-align: center; }
+  .qw-dot { width: 30px; height: 30px; margin: 0 auto 6px; border-radius: 50%; display: grid; place-items: center; font-size: 14px; font-weight: 800; background: #F0E7D6; color: #C3B6A0; }
+  .qw-dot.on { background: var(--coral); color: #fff; }
+  .qw-dot.today { box-shadow: 0 0 0 3px #FFE0D6; }
+  .qw-label { font-size: 10.5px; font-weight: 700; color: var(--on-sky-soft); }
+  .quest-total { text-align: center; font-size: 12.5px; font-weight: 700; color: var(--on-sky-soft); margin-top: 15px; }
+
   /* 필터 (세그먼트 컨트롤) */
   .bucket-filters { display: flex; gap: 5px; background: rgba(255,255,255,.5); padding: 5px; border-radius: 15px; margin-bottom: 14px; }
   .filter-tab { flex: 1; padding: 9px 4px; border-radius: 11px; font-size: 13.5px; font-weight: 800; color: var(--ink-soft); background: transparent; transition: background .2s ease, color .2s ease; letter-spacing: -0.3px; }
@@ -499,18 +525,6 @@
       <div class="field">
         <label for="nameInput">뭐라고 부를까요?</label>
         <input id="nameInput" type="text" placeholder="닉네임을 입력해주세요" maxlength="12" autocomplete="off" />
-      </div>
-      <div class="field">
-        <label for="regionInput">어느 동네에 있어요?</label>
-        <select id="regionInput">
-          <option value="" disabled selected>지역을 선택해주세요</option>
-          <option>서울</option><option>경기</option><option>인천</option>
-          <option>부산</option><option>대구</option><option>대전</option>
-          <option>광주</option><option>울산</option><option>세종</option>
-          <option>강원</option><option>충북</option><option>충남</option>
-          <option>전북</option><option>전남</option><option>경북</option>
-          <option>경남</option><option>제주</option>
-        </select>
       </div>
       <button class="btn-primary" id="startBtn" disabled>주말토리랑 시작하기</button>
 
@@ -687,6 +701,30 @@
     </div>
   </section>
 
+  <!-- ===================== 화면 5: 오늘의 퀘스트 ===================== -->
+  <section class="screen" id="quest">
+    <button class="back-btn" data-go="home">‹ 홈으로</button>
+    <div class="quest-head">
+      <div class="date-line" id="questDate">오늘의 미션</div>
+      <h2>오늘의 퀘스트 🎯</h2>
+      <div class="streak-badge" id="questStreak">🌱 오늘부터 시작해봐요</div>
+    </div>
+
+    <div class="quest-card" id="questCard">
+      <div class="q-emoji" id="questEmoji">🌤️</div>
+      <div class="q-label">TODAY'S QUEST</div>
+      <div class="q-text" id="questText">오늘의 퀘스트</div>
+      <img class="quest-photo" id="questPhoto" alt="인증샷" style="display:none" />
+      <div class="quest-done-tag" id="questDoneTag" style="display:none">오늘 퀘스트 완료! 🎉</div>
+      <div class="quest-actions" id="questActions"></div>
+    </div>
+
+    <div class="quest-week" id="questWeek"></div>
+    <p class="quest-total" id="questTotal"></p>
+
+    <input type="file" id="questPhotoInput" accept="image/*" hidden />
+  </section>
+
   <!-- 완료 기록 시트 -->
   <div class="sheet-backdrop" id="doneSheet">
     <div class="sheet">
@@ -711,31 +749,170 @@
 // 👉 주말지도 실제 URL로 바꿔주세요 (지금은 임시)
 const MAP_URL = "https://joomaltory.com/map"; // TODO: 실제 주말지도 URL
 
-// 주말 아이디어 풀 — 실제 콘텐츠로 자유롭게 추가/수정하세요
-// place: in(집)/out(집밖) · who: 어울리는 동행 · mood: active(활기)/make(몰입)/chill(느긋)/rest(늘어짐)
+// 뽑기 미션 — 「NFC 미션 데이터.xlsx」(실제미션_수정본)에서 생성. 32개 조합(장소2×동행4×에너지4) × 조합당 3~7개 = 160개
+// place: in(집에서)/out(집밖에서) · who: solo/friend/couple/family · mood: active(활기차게)/make(몰입하며)/chill(느긋하게)/light(가볍게)
+// tori: 획득 토리 id · arts: [아티클 제목, joomaltory.com/feed/ 뒤 id] (썸네일 = thumbs/<id>.webp)
 const IDEAS = [
-  { tag: "감성 산책", emoji:"📷", idea: "성수동 필름카메라 산책", desc: "필름 한 통 들고 골목골목 담아보기. 현상은 다음 주 설렘으로!", place:"out", who:["solo","friend","couple"], mood:"chill" },
-  { tag: "집콕 힐링", emoji:"🎬", idea: "홈카페 + 영화 한 편", desc: "직접 내린 커피랑 담요, 아껴둔 영화 한 편이면 완벽한 하루", place:"in", who:["solo","couple","friend"], mood:"rest" },
-  { tag: "자연 충전", emoji:"🌳", idea: "가까운 수목원 나들이", desc: "초록 사이를 천천히 걸으며 도시 소음에서 잠깐 로그아웃", place:"out", who:["solo","friend","couple","family"], mood:"chill" },
-  { tag: "미식 탐험", emoji:"🍜", idea: "안 가본 동네 맛집 개척", desc: "지도 앱 대신 발길 닿는 대로. 오늘의 인생맛집을 찾아서", place:"out", who:["friend","couple","family"], mood:"active" },
-  { tag: "취향 수집", emoji:"🛍️", idea: "동네 소품샵 구경", desc: "살 건 없어도 괜찮아요. 예쁜 걸 눈에 담는 것만으로 충전", place:"out", who:["solo","friend","couple"], mood:"chill" },
-  { tag: "물멍 타임", emoji:"🌅", idea: "한강에서 노을 보기", desc: "돗자리 하나, 편의점 간식 하나. 해 지는 걸 끝까지 지켜보기", place:"out", who:["solo","friend","couple","family"], mood:"chill" },
-  { tag: "몸 깨우기", emoji:"🏃", idea: "아침 러닝 + 브런치", desc: "가볍게 뛰고 든든하게 먹기. 부지런한 주말의 뿌듯함", place:"out", who:["solo","friend"], mood:"active" },
-  { tag: "문화 충전", emoji:"🖼️", idea: "혼자 전시 보러 가기", desc: "누구 눈치도 안 보고 내 속도로. 마음에 드는 그림 앞에 오래", place:"out", who:["solo"], mood:"chill" },
-  { tag: "손끝 몰입", emoji:"🎨", idea: "원데이 클래스 도전", desc: "도자기든 향수든, 손으로 뭔가 만들어내는 몰입의 재미", place:"out", who:["solo","friend","couple"], mood:"make" },
-  { tag: "책과 함께", emoji:"📖", idea: "동네 책방에서 반나절", desc: "표지에 끌린 책 한 권 골라 창가 자리에서 조용히 읽기", place:"out", who:["solo"], mood:"rest" },
-  { tag: "밤 산책", emoji:"🌃", idea: "야경 좋은 언덕 오르기", desc: "노을부터 야경까지. 반짝이는 도시를 내려다보는 밤", place:"out", who:["friend","couple","family"], mood:"active" },
-  { tag: "로컬 여행", emoji:"🚃", idea: "당일치기 근교 여행", desc: "기차표 한 장이면 충분해요. 낯선 동네에서의 하루", place:"out", who:["friend","couple","family"], mood:"active" },
-  { tag: "달콤 휴식", emoji:"🍰", idea: "디저트 카페 투어", desc: "한 곳 말고 두세 곳. 오늘은 단 걸 마음껏 허락하는 날", place:"out", who:["friend","couple"], mood:"chill" },
-  { tag: "감성 기록", emoji:"✍️", idea: "필사 노트 채우기", desc: "좋아하는 문장을 손으로 옮겨 적으며 마음도 함께 정리하기", place:"in", who:["solo"], mood:"make" },
-  { tag: "동네 재발견", emoji:"🧭", idea: "우리 동네 골목 탐험", desc: "늘 지나치던 길을 일부러 돌아가 보기. 의외의 발견이 기다려요", place:"out", who:["solo","friend","couple"], mood:"active" },
-  { tag: "집콕 파티", emoji:"🎉", idea: "집에서 홈파티 열기", desc: "좋아하는 사람들 불러 배달음식과 함께 왁자지껄한 하루", place:"in", who:["friend","couple","family"], mood:"active" },
-  { tag: "정주행", emoji:"📺", idea: "밀린 드라마 정주행", desc: "이불 속에서 간식 쌓아두고 하루 종일 몰아보기", place:"in", who:["solo","couple"], mood:"rest" },
-  { tag: "홈 베이킹", emoji:"🧁", idea: "홈 베이킹 도전", desc: "오븐 냄새 가득한 주말. 실패해도 맛있으면 그만!", place:"in", who:["solo","couple","family"], mood:"make" },
-  { tag: "공간 리셋", emoji:"🧹", idea: "방 대청소 + 가구 재배치", desc: "묵은 짐 비우고 배치 바꾸면 새집에 온 기분", place:"in", who:["solo"], mood:"make" },
-  { tag: "홈트 타임", emoji:"🧘", idea: "음악 틀고 홈트 한 판", desc: "거창한 준비 없이 매트 하나면 충분한 개운함", place:"in", who:["solo"], mood:"active" },
-  { tag: "보드게임", emoji:"🎲", idea: "집에서 보드게임 대결", desc: "승부욕 불타는 밤. 지는 사람이 설거지 어때요?", place:"in", who:["friend","couple","family"], mood:"active" },
-  { tag: "요리 도전", emoji:"🍳", idea: "안 해본 요리 만들어보기", desc: "레시피 하나 정해 장보기부터 플레이팅까지 도전", place:"in", who:["solo","couple","family"], mood:"make" },
+  {"id":"C01-1","place":"in","who":"solo","mood":"active","tag":"요리 도전","idea":"안 해본 요리 만들기","desc":"궁금했던 레시피로 한 접시 완성해봐.","tori":"sabujak","arts":[["요리가 어려운 너에게 보내는, 엄마의 다정한 집밥 편지","cm2hy5vh201cqg36f099xp0r3"],["나도 지구도 건강한 레시피, 근데 맛도 곁들인","cm4tgl112000j3i5q5f2l45zw"],["새해 식단은 건강하고 간편하게, 컵나물 밀키트🥬","cmk675d8g000ku00p9a9j8b7o"]]},
+  {"id":"C01-2","place":"in","who":"solo","mood":"active","tag":"홈베이킹","idea":"디저트 구워보기","desc":"달콤한 냄새로 집 안을 채워봐.","tori":"sabujak","arts":[["세상에서 제일 맛있는 디저트, 집에서 즐기기🥐 by. 지수","cmcb8hwn200051p2mvkjw44bd"],["오늘은 내가 요리사🍳 취향 저격 레시피 모음 by. 승아","cm5qanq9i0004uvofi90ezvdi"]]},
+  {"id":"C01-3","place":"in","who":"solo","mood":"active","tag":"초록 한 줌","idea":"씨앗 심어 키우기","desc":"작은 화분에 새 식구를 들여봐.","tori":"sabujak","arts":[["내 방에 파릇파릇한 행운 키우기🍀 행운 가득 씨앗 키트","cm996l7u70009mcdx9pcmf8ke"],["방구석에서 즐기는 씨앗테크, 홈가드닝","cm2hy5u3m00vgg36fob9a7iif"]]},
+  {"id":"C01-4","place":"in","who":"solo","mood":"active","tag":"손끝 공방","idea":"작은 소품 만들기","desc":"손으로 만드는 재미에 빠져봐.","tori":"sabujak","arts":[["겨울을 즐기는 가장 귀여운 방법, DIY 뜨개 키트 2","cm78mdjkc0012cpbzkvb05jvi"],["동글동글 귀여운 비즈로 방꾸할랭? DIY 비즈발 만들기","cm2hy5ucc00ykg36fpo6tvxyz"]]},
+  {"id":"C02-1","place":"in","who":"solo","mood":"make","tag":"퍼즐 속으로","idea":"방탈출 게임북 풀기","desc":"책장을 넘기며 숨은 단서를 찾아봐.","tori":"curious","arts":[["파워 집순이의 주말을 책임질 방탈출 게임북","cm2hy5t8z00iig36fiqegl4ku"]]},
+  {"id":"C02-2","place":"in","who":"solo","mood":"make","tag":"문학 산책","idea":"문학 작품 읽기","desc":"읽고 싶던 이야기 속으로 들어가봐.","tori":"book","arts":[["민음사의 역작, <세계문학전집>을 즐기는 새로운 방법","cmol4ndly0009dwv3b6z88ao6"]]},
+  {"id":"C02-3","place":"in","who":"solo","mood":"make","tag":"오늘은 영화","idea":"영화 한 편 감상하기","desc":"보고 싶던 작품에 푹 빠져봐.","tori":"read","arts":[["에디터들이 사랑한 OTT 띵작","cm2hy5s6c005og36fmewoglvx"],["에디터들의 사심 가득 추천 리스트","cmg80k3dk0001605m4svhf8d4"],["영하 20도를 영상 20도로, 따뜻한 연말 영화 추천","cm509fepk000433mubw0sucdf"]]},
+  {"id":"C02-4","place":"in","who":"solo","mood":"make","tag":"작가 탐구","idea":"좋아하는 작가 파보기","desc":"작품 너머 작가의 세계를 만나봐.","tori":"read","arts":[["내 방에서 만나는 노벨 문학상 작가, 한강 작가님 디깅하기","cm5gi1t870004k2s1jyliywbm"],["나만의 문학 취향을 찾고 싶다면📚 문학 웹진 림","cma1s1g0l000a144khhj52w7s"]]},
+  {"id":"C02-5","place":"in","who":"solo","mood":"make","tag":"문장 수집","idea":"좋은 문장 필사하기","desc":"마음에 닿은 글을 손으로 옮겨봐.","tori":"book","arts":[["곱씹는 가을, 필사하기 좋은 책 3권🍁","cmfoz32u6000111z15wsbiea0"],["무더운 날씨엔 집에서 타닥타닥, 필사 사이트","cm2hy5u8y00xag36fgxj2qnh9"]]},
+  {"id":"C03-1","place":"in","who":"solo","mood":"chill","tag":"차 한 잔","idea":"따뜻한 차 내려 마시기","desc":"차가 우러나는 만큼 천천히 쉬어봐.","tori":"rest","arts":[["따뜻한 차를 우리며🍵 천천히 즐기는 티 스페이스","cmkp0gcd20001ayyq4k81sn39"]]},
+  {"id":"C03-2","place":"in","who":"solo","mood":"chill","tag":"인디 발견","idea":"새로운 인디 음악 듣기","desc":"낯선 노래에서 새 취향을 찾아봐.","tori":"read","arts":[["당신이 몰랐던 오늘의 인디 트랙 by. 따미","cmd6q22hv0001c4f4jpocyvy2"],["뜨거운 여름날, 집순이 & 밖순이 플레이리스트","cmdp8rsrc0009i37ra739zjol"]]},
+  {"id":"C03-3","place":"in","who":"solo","mood":"chill","tag":"추억 정리","idea":"지난 여행 사진 정리하기","desc":"다시 보고 싶은 장면을 골라봐.","tori":"home","arts":[["여기도 갔고 저기도 갔네? 여행 기록 필수 앱 👣","cmsruwgsi000148cgduifmoyq"]]},
+  {"id":"C03-4","place":"in","who":"solo","mood":"chill","tag":"독서 쉼표","idea":"가벼운 책 읽기","desc":"그림과 문장으로 잠시 쉬어봐.","tori":"book","arts":[["어른이들을 위한 따뜻한 그림책","cm4umoffj0005atiwrgjkncmt"],["봄의 세계로 풍덩, 봄이 느껴지는 책 추천","cm2hy5sa3006yg36fsi9hxksy"]]},
+  {"id":"C03-5","place":"in","who":"solo","mood":"chill","tag":"커피 한 잔","idea":"드립커피 내려 마시기","desc":"커피 향으로 느린 아침을 열어봐.","tori":"rest","arts":[["드립커피를 내리며 시작하는 여유로운 주말 아침 by. 쑤","cmfggrwnx0007esgfskjgw1zj"]]},
+  {"id":"C03-6","place":"in","who":"solo","mood":"chill","tag":"오늘의 기록","idea":"하루 짧게 기록하기","desc":"오늘 남기고 싶은 순간을 적어봐.","tori":"home","arts":[["하루 한 장, 나만의 기록 치트키 🧾","cmpqg282x0001ajgmv12rmwkv"],["오늘 내 하루는 어떤 그림일까? 일기 어플 추천","cm2hy5vja01dig36f5keq3dt7"],["나의 기록을 도와줘, 기록과 계획을 도와주는 유용한 도구 추천","cm2hy5uq4013yg36fxpdbqr6e"]]},
+  {"id":"C04-1","place":"in","who":"solo","mood":"light","tag":"나를 발견","idea":"재미있는 테스트 해보기","desc":"결과 속에서 뜻밖의 나를 만나봐.","tori":"curious","arts":[["🤖 AI가 분석한 나의 인생 가치관","cmqu9e46r00074udt3eikwo13"],["너 SBTI가 뭐야? 새롭게 등장한 매운맛 테스트","cmo2h2y4p001cvi1xcr3wvp5m"],["내 전성기는 언제일까? 태국에서는 사주 대신 ‘이걸’ 본대","cmtmha2i80002vd0am0cwor84"]]},
+  {"id":"C04-2","place":"in","who":"solo","mood":"light","tag":"레터 한 편","idea":"관심 가는 뉴스레터 읽기","desc":"끌리는 제목 하나를 열어봐.","tori":"curious","arts":[["우리는 레터를 사랑해✉️ 레터 추천 3","cmc18izuo00092g0k7il6yjrp"],["No Issue No Life, 뉴스레터 앨리스모먼트","cm2hy5t8r00i8g36fsyitkal2"],["영감 떠먹여주는 해외 뉴스레터 7개 추천","cm2hy5rwb002kg36fp46hcz3w"]]},
+  {"id":"C04-3","place":"in","who":"solo","mood":"light","tag":"듣는 재미","idea":"팟캐스트 한 편 듣기","desc":"재미있는 이야기에 귀를 맡겨봐.","tori":"read","arts":[["심심할 때 들으면 빠져드는 팟캐스트 추천","cm2hy5sun00dkg36f65p49x5a"]]},
+  {"id":"C04-4","place":"in","who":"solo","mood":"light","tag":"웃음 충전","idea":"밈 아카이브 구경하기","desc":"피식 웃게 되는 짤을 찾아봐.","tori":"curious","arts":[["이상하고 귀여운 간판을 모아놓은 곳, 사인스케이프","cmo2gtahe001upvbp06iyvx3j"],["지금 찾는 그 밈, 여기에 있다랭, 무한도전 짤 모음 사이트","cm2hy5urv014og36ft5rcltlr"]]},
+  {"id":"C04-5","place":"in","who":"solo","mood":"light","tag":"쇼핑 타임","idea":"위시리스트 만들기","desc":"취향에 꼭 맞는 아이템을 골라 담아봐.","tori":"curious","arts":[["요즘 이게 그렇게 핫하대! 금목서향 아이템 2","cmvafzrbw00044ei6w9ickpw5"],["이게 바로 코리안 민트코어😎 주말토리팀 '내돈내산' 아이템","cmtmhmmbj0002bk6bj3855bet"],["국중박: 새 굿즈 낼게✨ 나: 전부 구매할게💸","cms8mdh670002pmbblfz0p7lh"]]},
+  {"id":"C04-6","place":"in","who":"solo","mood":"light","tag":"웹 탐험","idea":"재미있는 웹사이트 탐방","desc":"클릭 몇 번으로 뜻밖의 재미를 찾아봐.","tori":"curious","arts":[["일은 내일부터 열심히 할게요, 킬링 타임용 사이트","cm82jsypu000g4qx19rdo5vhc"],["직장 스트레스도 추석 잔소리도 부처님이 해결해 주실 거야","cmu6ciq9p000514ll6tweunym"]]},
+  {"id":"C05-1","place":"in","who":"friend","mood":"active","tag":"보드게임 타임","idea":"새 보드게임 해보기","desc":"새로운 규칙으로 승부를 즐겨봐.","tori":"excited","arts":[["지는 사람이 커피 쏘는 거야~ 명절 보드게임 추천 2","cmlkcoaw10018e6elztjyjep1"],["내 집 마련의 꿈을 이루는 🏠 마을 건축 보드게임","cm9t9acpw000lhodbgco6ujp4"],["방구석 오락실이 여기에, 보드게임 추천","cm2hy5rq90004g36f4kdssbg0"]]},
+  {"id":"C05-2","place":"in","who":"friend","mood":"active","tag":"한 접시 뚝딱","idea":"새로운 요리 만들기","desc":"손을 보태 맛있는 한 끼를 완성해봐.","tori":"sabujak","arts":[["도시락, 브런치로 딱! 샌드위치 레시피 by. 쑤","cm9ta48wj000dj5d77z2j6yxe"]]},
+  {"id":"C05-3","place":"in","who":"friend","mood":"active","tag":"내기 한 판","idea":"게임으로 내기하기","desc":"작은 내기로 재미를 더해봐.","tori":"excited","arts":[["추운 주말엔 실내 두뇌 운동","cm2hy5sve00dsg36fj9szal8x"],["👥: 랭대리 오늘 많이 바쁜가봐...","cmryat3sc0009mofirxei107e"]]},
+  {"id":"C06-1","place":"in","who":"friend","mood":"make","tag":"게임 몰입","idea":"온라인 게임 해보기","desc":"게임 속 이야기에 푹 빠져봐.","tori":"excited","arts":[["진정한 고향만두의 맛을 보여주겠어! 추억의 게임 사이트","cm8cp2stm000gp8htp07ozuyo"],["내가 ‘나’로 태어날 확률은? 시간 순삭 인생 시뮬레이션 게임","cmvagpdyt0005ukb1ffbv3x54"],["몰입도 200%! 주말이 순삭되는 온라인 게임","cmejbr5x90009t6n7tcpp4e0m"]]},
+  {"id":"C06-2","place":"in","who":"friend","mood":"make","tag":"조각의 완성","idea":"우드 퍼즐 맞추기","desc":"흩어진 조각으로 작품을 완성해봐.","tori":"sabujak","arts":[["집콕 취미 추천🎨 감성 가득 DIY 우드 퍼즐 2종","cmhmzfs1f000bxpuehee5in2v"]]},
+  {"id":"C06-3","place":"in","who":"friend","mood":"make","tag":"방구석 공방","idea":"DIY 소품 만들기","desc":"재료를 만지며 만드는 재미를 느껴봐.","tori":"sabujak","arts":[["동글동글 귀여운 비즈로 방꾸할랭? DIY 비즈발 만들기","cm2hy5ucc00ykg36fpo6tvxyz"],["겨울을 즐기는 가장 귀여운 방법, DIY 뜨개 키트 2","cm78mdjkc0012cpbzkvb05jvi"],["내 손으로 만드는 영영 시들지 않는 꽃, 모루꽃 만들기","cm2hy5uij0110g36fkd441vsl"]]},
+  {"id":"C06-4","place":"in","who":"friend","mood":"make","tag":"다음 숙소는","idea":"머물고 싶은 숙소 고르기","desc":"취향과 예산을 맞춰 숙소를 골라봐.","tori":"travel","arts":[["호텔파도 캠핑파도 대만족할 9월 신상 숲캉스 숙소","cmtmheod80002w8ed5443scmf"],["소도시의 한적함이 그대로 묻어난 스테이 4","cmmw7xqei0001jpoaehrj8qki"],["여름휴가 여기 어때? 동행자별 추천 오션뷰 숙소","cmr8j3zhn0001w0kob8gain16"]]},
+  {"id":"C07-1","place":"in","who":"friend","mood":"chill","tag":"따뜻한 티타임","idea":"차 끓여 마시기","desc":"따뜻한 한 잔에 밀린 수다를 얹어봐.","tori":"rest","arts":[["보글보글, 겨울 준비는 짜이로 시작! 이젠 홈키트로도 즐기자 ☕","cmhy58mmy001l81cqa5aptxt7"],["따뜻한 차를 우리며🍵 천천히 즐기는 티 스페이스","cmkp0gcd20001ayyq4k81sn39"]]},
+  {"id":"C07-2","place":"in","who":"friend","mood":"chill","tag":"사부작 시간","idea":"재미있는 툴킷 해보기","desc":"색다른 도구로 손과 생각을 깨워봐.","tori":"sabujak","arts":[["더 나은 새해를 준비하고 싶다면📝 집콕 툴킷 추천","cmjmcg82a0009sgfx99fegbol"],["한파주의보에도 안전한 주말","cm2hy5sy200eog36f5hckkpxz"]]},
+  {"id":"C07-3","place":"in","who":"friend","mood":"chill","tag":"나란히 독서","idea":"책 바꿔 읽기","desc":"좋아하는 책을 건네고 읽어봐.","tori":"book","arts":[["소소하게 행복해지는 특이한 단어 사전 2권","cmf2addij0004e43ug37t1tmy"],["여름의 또 다른 말은 💭 여름어 사전","cmd6pi2zc000b14g0c8em9xf0"],["가볍게 읽으면 마음이 따수워지는 책 2","cm7imwbl70004v8ubzw8op7ye"]]},
+  {"id":"C07-4","place":"in","who":"friend","mood":"chill","tag":"세계의 소리","idea":"세계 라디오 들어보기","desc":"지구 반대편의 일상에 귀 기울여봐.","tori":"read","arts":[["지금 지구 반대편에서는🌍 전 세계 라디오 사이트","cmb79m14a0009czr6eqodqybt"]]},
+  {"id":"C08-1","place":"in","who":"friend","mood":"light","tag":"몰랐던 이야기","idea":"대화카드로 이야기하기","desc":"평소 못 했던 질문을 꺼내봐.","tori":"excited","arts":[["더 나은 새해를 준비하고 싶다면📝 집콕 툴킷 추천","cmjmcg82a0009sgfx99fegbol"],["이거 하나면 연말 모임 끝! 대화 질문카드 2종 추천","cm2hy5v8u01a2g36f4gmwjert"]]},
+  {"id":"C08-2","place":"in","who":"friend","mood":"light","tag":"간식 탐험","idea":"신상 간식 맛보기","desc":"처음 보는 맛을 가볍게 골라봐.","tori":"eat","arts":[["하늘은 높고 랭랭이는 살찐다🤤 가을 신상 먹거리 출동","cmuql6y7r00045h2racgfiydn"],["주말에 비 온다고? 집에서 신상 아이스크림 까먹자 🍦","cmryayd4q000emofiwzpan4x3"]]},
+  {"id":"C08-3","place":"in","who":"friend","mood":"light","tag":"어디로 갈까","idea":"랜덤 여행지 뽑기","desc":"뜻밖의 목적지로 여행을 상상해봐.","tori":"travel","arts":[["일단 던져🎯 그리고 떠나🚗 랜덤 여행 지도","cmrnbjvb50001pu0gvgeq157q"],["영화 속 명장면을 찾아서 떠나자! 이색 여행 지도","cmtwmgdvi0001anvvcll0ed5l"]]},
+  {"id":"C08-4","place":"in","who":"friend","mood":"light","tag":"방구석 한 컷","idea":"온라인 포토부스 찍기","desc":"화면 앞에서 장난스러운 표정을 지어봐.","tori":"excited","arts":[["나 혼자만 알고 싶은 빈티지 포토부스 📸","cmocajmiv0026hqtbj5m6n6w5"]]},
+  {"id":"C08-5","place":"in","who":"friend","mood":"light","tag":"취향 비교","idea":"테스트 결과 비교하기","desc":"같은 질문에 다른 답을 발견해봐.","tori":"curious","arts":[["내 전성기는 언제일까? 태국에서는 사주 대신 ‘이걸’ 본대","cmtmha2i80002vd0am0cwor84"],["🤖 AI가 분석한 나의 인생 가치관","cmqu9e46r00074udt3eikwo13"],["너 SBTI가 뭐야? 새롭게 등장한 매운맛 테스트","cmo2h2y4p001cvi1xcr3wvp5m"]]},
+  {"id":"C09-1","place":"in","who":"couple","mood":"active","tag":"방 새 단장","idea":"인테리어 소품 바꾸기","desc":"마음에 드는 색과 무늬를 들여봐.","tori":"home","arts":[["창밖은 흐려도, 우리 집은 청량하게 🫧 여름 인테리어 아이템","cmquaj6mb000f3lj5cnnm1lfy"],["탕진잼을 부르는 홈테리어 브랜드","cm2hy5ru80022g36fp264fz6h"]]},
+  {"id":"C09-2","place":"in","who":"couple","mood":"active","tag":"리듬 타임","idea":"집에서 춤춰보기","desc":"좋아하는 노래에 몸을 맡겨봐.","tori":"excited","arts":[["마음이 해방되는 느릿느릿 훌라 댄스 원데이 클래스","cm2hy5vlz01ecg36f2dq0v866"]]},
+  {"id":"C09-3","place":"in","who":"couple","mood":"active","tag":"홈트 한 판","idea":"집에서 운동하기","desc":"할 수 있는 만큼 기분 좋게 움직여봐.","tori":"excited","arts":[["운동은 내가 할게 찾는 건 누가 할랭?","cm2hy5uh9010ag36fzoy6h4hq"],["쥬니킴의 지도 방출! 수영&요가 스팟 by.쥬니킴","cm2hy5urk014kg36flhlts72z"]]},
+  {"id":"C10-1","place":"in","who":"couple","mood":"make","tag":"꽃잎의 기록","idea":"꽃 눌러 말리기","desc":"예쁜 꽃잎을 오래 간직해봐.","tori":"sabujak","arts":[["계절을 담은 나만의 꽃 기록, 압화 키트","cmavrkgqq000d13wzmxxr9dyd"],["식목일을 특별하게 챙기는 방법☘️ 식목일 취미 키트 2","cmniaegkh00288pwzjyeswyau"],["아트북 속 꽃잎 한 장에 내 마음도 물드는 시간🌸","cm5gjcpxh001914na2pl8mhu4"]]},
+  {"id":"C10-2","place":"in","who":"couple","mood":"make","tag":"추억 한 장","idea":"여행 사진 포스터 만들기","desc":"좋아하는 여행 장면을 벽에 걸어봐.","tori":"sabujak","arts":[["냉동 여행 사진 해동하기","cm2hy5rw0002ig36f5xfo47vj"]]},
+  {"id":"C10-3","place":"in","who":"couple","mood":"make","tag":"집밥 한 상","idea":"밀키트로 집밥 먹기","desc":"간편하게 맛집의 한 상을 차려봐.","tori":"sabujak","arts":[["이불 밖은 위험해! 컬리도 모르는 진짜 맛집 밀키트 5","cm4ta9bu50005hl1829m6ap1k"]]},
+  {"id":"C11-1","place":"in","who":"couple","mood":"chill","tag":"느린 편지","idea":"느린 편지 보내기","desc":"말로 못 한 마음을 글로 건네봐.","tori":"rest","arts":[["기록을 쉽게 만들어주는 아이디어 문구 4","cml7kgjw500017uljmzztemil"],["아날로그 감성 펜팔 어플 slowly","cm2hy5th200mag36fcws0iux5"]]},
+  {"id":"C11-2","place":"in","who":"couple","mood":"chill","tag":"고요한 호흡","idea":"호흡 명상하기","desc":"잠시 눈을 감고 숨에 집중해봐.","tori":"rest","arts":[["지친 마음을 달래주는 명상이 필요할 때","cm2hy5tu300s2g36fc9o95va3"],["보고 듣기만 해도 마음이 편안해지는 명상 사이트 2","cmcikk59y000431tw6rd89wn2"]]},
+  {"id":"C11-3","place":"in","who":"couple","mood":"chill","tag":"발끝 쉼표","idea":"따뜻한 물에 족욕하기","desc":"발끝부터 천천히 긴장을 풀어봐.","tori":"rest","arts":[["따끈한 족욕이 생각나는 계절","cm2hy5ti000mkg36fjfch1vmn"],["쌀쌀한 날씨에 몸을 녹여주는 족욕카페 3곳","cm2hy5vr301fyg36fyx5ers12"]]},
+  {"id":"C12-1","place":"in","who":"couple","mood":"light","tag":"다음 데이트","idea":"가고 싶은 장소 고르기","desc":"마음이 통하는 곳 하나를 저장해봐.","tori":"travel","arts":[["실패 없는 경상도 여행을 위한 공식 가이드 🗺️","cmryh3bk60001137fd9af1vz5"],["영화 속 명장면을 찾아서 떠나자! 이색 여행 지도","cmtwmgdvi0001anvvcll0ed5l"],["일단 던져🎯 그리고 떠나🚗 랜덤 여행 지도","cmrnbjvb50001pu0gvgeq157q"]]},
+  {"id":"C12-2","place":"in","who":"couple","mood":"light","tag":"얼마나 알까","idea":"질문카드로 취향 맞히기","desc":"정답보다 의외의 답을 즐겨봐.","tori":"excited","arts":[["더 나은 새해를 준비하고 싶다면📝 집콕 툴킷 추천","cmjmcg82a0009sgfx99fegbol"],["한파주의보에도 안전한 주말","cm2hy5sy200eog36f5hckkpxz"]]},
+  {"id":"C12-3","place":"in","who":"couple","mood":"light","tag":"의외의 발견","idea":"성향 테스트 비교하기","desc":"닮은 점과 다른 점을 찾아봐.","tori":"curious","arts":[["내 행운을 끌어모으는 여행지는? 사주 여행지 테스트","cmns8v14x004laoo8nppntu9o"],["나 혹시 요즘 번아웃인가?' 3분이면 끝나는 마음 테스트","cmtwn1ff800016r1295n3d2ys"],["내 전성기는 언제일까? 태국에서는 사주 대신 ‘이걸’ 본대","cmtmha2i80002vd0am0cwor84"]]},
+  {"id":"C12-4","place":"in","who":"couple","mood":"light","tag":"작은 선물","idea":"선물 아이템 골라주기","desc":"서로의 취향을 닮은 물건을 찾아봐.","tori":"curious","arts":[["기록을 쉽게 만들어주는 아이디어 문구 4","cml7kgjw500017uljmzztemil"],["올여름을 책임져줄 감도 높은 파자마 3","cmpqiohqr000pn96q14g5woi3"],["새를 사랑하고 감자를 믿습니다🥔 개성 만점 스몰 브랜드","cmsrv0kg60001sf7b91qk07xu"]]},
+  {"id":"C13-1","place":"in","who":"family","mood":"active","tag":"우리 집 식탁","idea":"한 끼 요리하기","desc":"역할을 나눠 맛있는 한 상을 차려봐.","tori":"sabujak","arts":[["나도 지구도 건강한 레시피, 근데 맛도 곁들인","cm4tgl112000j3i5q5f2l45zw"],["도시락, 브런치로 딱! 샌드위치 레시피","cm9ta48wj000dj5d77z2j6yxe"]]},
+  {"id":"C13-2","place":"in","who":"family","mood":"active","tag":"달콤한 오븐","idea":"디저트 구워보기","desc":"직접 만든 달콤함을 나눠봐.","tori":"sabujak","arts":[["세상에서 제일 맛있는 디저트, 집에서 즐기기🥐 by. 지수","cmcb8hwn200051p2mvkjw44bd"],["오늘은 내가 요리사🍳 취향 저격 레시피 모음","cm5qanq9i0004uvofi90ezvdi"]]},
+  {"id":"C13-3","place":"in","who":"family","mood":"active","tag":"작은 텃밭","idea":"씨앗 심어 키우기","desc":"씨앗 심기와 물주기를 나눠 맡아봐.","tori":"sabujak","arts":[["내 방에 파릇파릇한 행운 키우기🍀 행운 가득 씨앗 키트","cm996l7u70009mcdx9pcmf8ke"]]},
+  {"id":"C14-1","place":"in","who":"family","mood":"make","tag":"보드게임","idea":"보드게임 해보기","desc":"머리를 맞대고 다음 수를 골라봐.","tori":"excited","arts":[["내 집 마련의 꿈을 이루는 🏠 마을 건축 보드게임","cm9t9acpw000lhodbgco6ujp4"],["지는 사람이 커피 쏘는 거야~ 명절 보드게임 추천 2","cmlkcoaw10018e6elztjyjep1"],["오늘 주문해야 연휴 전에 도착! 추석맞이 잼컨 2","cmtwm9iup00012s6pgxs0jg64"]]},
+  {"id":"C14-2","place":"in","who":"family","mood":"make","tag":"사진 속 추억","idea":"여행 기록 정리하기","desc":"사진을 넘기며 그날의 이야기를 꺼내봐.","tori":"home","arts":[["여기도 갔고 저기도 갔네? 여행 기록 필수 앱 👣","cmsruwgsi000148cgduifmoyq"]]},
+  {"id":"C14-3","place":"in","who":"family","mood":"make","tag":"한 땀 한 땀","idea":"실로 소품 만들기","desc":"손끝에 집중해 작은 작품을 완성해봐.","tori":"sabujak","arts":[["혼자 해도, 같이 해도 즐거운 겨울 취미, 뜨개질","cmhy8mu0e000ry2gfn582aat4"],["잡생각을 잊으며 한땀 한땀, 바느질 DIY키트","cm2hy5ttr00rug36fvio1wwud"],["코 끝 시린 겨울, 손끝에서 탄생하는 나만의 작품","cm2hy5rzg003sg36fys9suhld"]]},
+  {"id":"C15-1","place":"in","who":"family","mood":"chill","tag":"랜선 드라이브","idea":"차창 풍경으로 여행하기","desc":"화면 너머 낯선 거리로 떠나봐.","tori":"travel","arts":[["집에서 전세계를 누비는 거야🚗 드라이브&라디오 사이트","cmcb807590005bm6gymapajyi"]]},
+  {"id":"C15-2","place":"in","who":"family","mood":"chill","tag":"소리로 쉬기","idea":"자연 소리 들으며 쉬기","desc":"빗소리와 바람에 마음을 맡겨봐.","tori":"rest","arts":[["보고 듣기만 해도 마음이 편안해지는 명상 사이트 2","cmcikk59y000431tw6rd89wn2"]]},
+  {"id":"C15-3","place":"in","who":"family","mood":"chill","tag":"마음 나누기","idea":"감정카드로 대화하기","desc":"오늘의 기분을 천천히 들어봐.","tori":"home","arts":[["오늘 랭랭의 기분은 어때? 감정 보드게임 카드","cm2hy5saa0076g36fq4whbo09"]]},
+  {"id":"C16-1","place":"in","who":"family","mood":"light","tag":"다음 여행은","idea":"여행지 추천받기","desc":"재미로 어울리는 여행지를 찾아봐.","tori":"travel","arts":[["내 행운을 끌어모으는 여행지는? 사주 여행지 테스트","cmns8v14x004laoo8nppntu9o"]]},
+  {"id":"C16-2","place":"in","who":"family","mood":"light","tag":"디저트 배달","idea":"디저트 주문해 맛보기","desc":"소문난 달콤함을 집에서 즐겨봐.","tori":"eat","arts":[["포슬포슬 달큰해🎃 전국 택배 단호박 간식","cmu6j64r10002izwfgcoaigsl"],["설날은 핑계고 달디단 당 충전, 택배 맛집 3곳","cm6939f9t0004n4d0u5139obj"]]},
+  {"id":"C16-3","place":"in","who":"family","mood":"light","tag":"그날의 기록","idea":"생일의 옛 기록 찾기","desc":"태어난 날 세상 소식을 펼쳐봐.","tori":"curious","arts":[["내가 태어난 날, 대한민국은 어땠을까?","cmuyu6dic0006l5dz034em0bu"]]},
+  {"id":"C17-1","place":"out","who":"solo","mood":"active","tag":"산길 도전","idea":"가벼운 등산하기","desc":"내 속도로 오르며 바람을 쐬어봐.","tori":"travel","arts":[["초보도 즐길 수 있는 등산 코스 모음","cm2hy5vdj01bcg36fekpeufyn"],["숨이 찬 만큼 행복도 차오르는 주말 산행","cmmymqya3003114p3ov761fwn"],["산속에 있어 에어컨이 필요 없었다! by. 큰뭉치","cm2hy5v2k0180g36fsgw9is21"]]},
+  {"id":"C17-2","place":"out","who":"solo","mood":"active","tag":"러닝 한 바퀴","idea":"강변 따라 달리기","desc":"풍경을 따라 가볍게 땀을 내봐.","tori":"excited","arts":[["속초에서 누리는 디톡스 여행 by. 메이브","cm2hy5v53018ng36fndkq87kv"],["가을엔 바람 맞으며 달려볼랭, 내게 맞는 마라톤을 찾을 수 있는 사이트","cm2hy5vrs01gag36f754lfwvg"]]},
+  {"id":"C17-3","place":"out","who":"solo","mood":"active","tag":"두 바퀴 바람","idea":"자전거길 달리기","desc":"페달을 밟으며 답답함을 날려봐.","tori":"excited","arts":[["자전거 여행의 계절 가을, 한강으로 떠나보자 by. 루치오","cm2hy5tu600s6g36floz4fyik"],["자전거 타기 좋은 계절🚲 전문가가 만든 전국 라이딩 코스","cmnsacu93003oi5ftp6ufrbu9"]]},
+  {"id":"C17-4","place":"out","who":"solo","mood":"active","tag":"소도시 하루","idea":"소도시 당일치기 떠나기","desc":"낯선 도시에서 하루를 보내봐.","tori":"travel","arts":[["3초 안에 빠져드는 삼척 뚜벅이 여행지","cmg0cdxzh000132ysa6npyfmz"],["혼자라서 행복해🌊 나홀로 강릉 여행 코스","cmsg62slv000dcwkd5pxpg18i"],["에디터가 직접 다녀온 서산 코스 🌳","cmpds617i0002dfd9z9mmhmns"]]},
+  {"id":"C17-5","place":"out","who":"solo","mood":"active","tag":"오늘의 출사","idea":"풍경 사진 찍으러 가기","desc":"마음에 담고 싶은 장면을 찾아봐.","tori":"read","arts":[["📸 사진 좀 찍는 에디터의 비밀 출사 스팟 대공개!","cmuo9sjer0001102wg6w3g869"],["사진작가들이 사랑하는 비밀의 경주 숲🌲","cme82dmgs00011490xmy0pruc"],["건축 명소로 떠나는 봄 출사 여행","cm2hy5uok013ig36flt3ns976"]]},
+  {"id":"C17-6","place":"out","who":"solo","mood":"active","tag":"도시 속 하루","idea":"도심 하루 코스 즐기기","desc":"눈길 가는 공간 따라 하루를 걸어봐.","tori":"honto","arts":[["반차 쓰고 놀러 갈랭? 완벽한 잠실 혼놀 반차 코스","cmteodsnk0004zaqcj0v0kgg6"],["갈테야 갈테야 이수로 갈테야🚶‍♀️ 이수 사당 데이트 코스","cmsim28270005tpjhimj0cin8"],["국립현대미술관 전시 보고, 안국역 하루 코스🚶🏻","cmf2b28pr0004pb09usiutr2i"]]},
+  {"id":"C17-7","place":"out","who":"solo","mood":"active","tag":"명상 시간","idea":"명상 수업 들어보기","desc":"새로운 자세로 몸의 감각을 깨워봐.","tori":"excited","arts":[["몸과 마음을 편안하게! 전국 이색 하타 요가 스튜디오 4곳","cmhvrmhw40003wqfnp2whirow"],["고요를 체험하시오...🧘‍♀️ 입문자를 위한 명상 공간 2","cmm4kbwjp0001xvj2kunagpro"],["다 나가주세요, 혼자 있고 싶어요","cm2hy5uxx016kg36fd34x1f1k"]]},
+  {"id":"C18-1","place":"out","who":"solo","mood":"make","tag":"전시 몰입","idea":"미술관 전시 감상하기","desc":"작품 앞에서 충분히 머물러봐.","tori":"read","arts":[["새 단장 완료! 이번주에 바로 가봐야 할 미술관 2","cmu6cpp860006rgjsrah1f2pq"],["작품보다 풍경에 먼저 반할 걸🍂 가을에 가기 딱 좋은 미술관","cmuo3mtjv000613plgnraui59"],["더위 피해 미감 충전, 서울 실내 영감 아지트 6","cmrlt77v300019p15v0cbtl01"]]},
+  {"id":"C18-2","place":"out","who":"solo","mood":"make","tag":"책방 발견","idea":"독립서점 둘러보기","desc":"서가 사이에서 읽고 싶은 책을 찾아봐.","tori":"book","arts":[["당장이라도 책 읽고 싶어지는 서울 독립서점 list!","cm2hy5viu01d4g36ft1kwhsii"],["파도 파도 끝이 없는 독립 서점의 매력 속으로 📚","cmo9sceqy000gruq3q7no4322"],["서울 근교 구리 독립서점 ‘구월서가’","cmm344o6q0001yha238cnyu24"]]},
+  {"id":"C18-3","place":"out","who":"solo","mood":"make","tag":"도서관 탐방","idea":"특색 있는 도서관 가기","desc":"공간마다 다른 책의 풍경을 만나봐.","tori":"book","arts":[["도서관이 왜 이렇게 예뻐? 미술관 옆 도서관의 매력","cmpz7swc70001iz8iqg2qxn93"],["장마철에도 뽀송뽀송🫧 전국 이색 도서관","cmrd4vj4i000510logxx18h54"],["연휴 후유증에는 책방 처방! 몰입을 돕는 서울 책 공간 2","cmlu71c3m0016r6qf3yb6w1gq"]]},
+  {"id":"C18-4","place":"out","who":"solo","mood":"make","tag":"작은 영화관","idea":"독립영화 감상하기","desc":"새로운 시선의 이야기를 만나봐.","tori":"read","arts":[["영화학도가 말아주는 독립·이색 영화관 7선 by. 윗스","cmdf81thg0002r73ow35wxqzb"],["취향을 상영하는 영화관, 무비랜드","cm2hy5u8l00x2g36fsotrsvn6"],["제주도에도 독립영화관이 있다고? 당장 비행기표 끊어✈️ <숏트롱시네마>","cmfgetsfr00026mz2l016j84v"]]},
+  {"id":"C18-5","place":"out","who":"solo","mood":"make","tag":"흙놀이","idea":"도자기 카페 체험하기","desc":"손끝으로 나만의 모양을 빚어봐.","tori":"sabujak","arts":[["나만의 템포를 찾는 주말, 전국 도자기 카페 3","cmkqk22hd0002143iimkr5p4c"],["근교 드라이브 하기 좋은 북한강🏞️ 도자기 카페 2","cmavtuzwa0003hxu08ehz9w4p"]]},
+  {"id":"C18-6","place":"out","who":"solo","mood":"make","tag":"소리에 몰입","idea":"청음 공간 방문하기","desc":"좋은 소리에 온전히 귀 기울여봐.","tori":"read","arts":[["음악에 몰입하는 주말🎧 서울 스피커 맛집 청음 공간","cmtvazyr00001vg3uxofln5te"],["다가오는 봄🌸 아날로그의 낭만을 간직한 LP 공간 5","cmm3b7qqs0001zna32ah091e8"],["좋은 음악을 좋은 소리로, 청음할 수 있는 공간 3곳","cm2hy5t1400fog36fr3yd407o"]]},
+  {"id":"C18-7","place":"out","who":"solo","mood":"make","tag":"집중할 자리","idea":"작업 공간에서 집중하기","desc":"자리를 바꿔 미뤄둔 일을 펼쳐봐.","tori":"honto","arts":[["카공러 개발자가 발품 팔아 만든 지도","cmq0nv4p30002rj9zppsw3hus"],["도저히 집중이 안될 때 찾아와😏 집중하기 좋은 공간 3","cmcikefg2000312zj03ako90s"],["집중이 필요한 날, 무인 서재","cm2hy5vtr01gsg36fhisvehbx"]]},
+  {"id":"C19-1","place":"out","who":"solo","mood":"chill","tag":"카페 쉼표","idea":"조용한 카페에서 쉬기","desc":"아무 일정 없이 느리게 머물러봐.","tori":"rest","arts":[["카페에서 즐기는 마지막 초록, 뷰가 예쁜 4곳","cm2hy5vhp01cug36ftoxicyq3"],["지금이 저점매수 타이밍 ☕️ 아시아 BEST 100 카페 후보","cmv8univa0001s2e0rd9697to"]]},
+  {"id":"C19-2","place":"out","who":"solo","mood":"chill","tag":"초록 산책","idea":"숲과 정원 거닐기","desc":"속도를 늦추고 초록을 눈에 담아봐.","tori":"rest","arts":[["5월 마지막 연휴 어디가지? 전국 산책 지도","cmp6alcnw000n8607a7fw2zji"],["초초신상! 서울 한복판 9,000평 정원 개관 소식🌳","cmr3gwal2000h13fsali9kq8b"],["서울 근교 프라이빗 숲캉스🌳 예약제 비밀의 숲","cmqkarbor0008tjhkcmmqev5g"]]},
+  {"id":"C19-3","place":"out","who":"solo","mood":"chill","tag":"따뜻한 쉼","idea":"프라이빗 사우나 즐기기","desc":"고요한 온기 속에 몸을 맡겨봐.","tori":"rest","arts":[["최고 기온 35도?! 이렇게 된 이상 이열치열 작전이랭🔥","cms8j9mc30008m0mg7mvbrkcw"],["국내 최초 사우나 커뮤니티가 만든, 전국 사우나 97곳 지도♨️","cmfgfva840009ho8d13xbjsq2"],["몸과 마음의 묵은 때를 날려버리랭~ 프라이빗 한 1인용 세신샵 6곳","cm2hy5uog013eg36f4n295ihk"]]},
+  {"id":"C19-4","place":"out","who":"solo","mood":"chill","tag":"책과 하룻밤","idea":"북스테이에서 쉬기","desc":"책장을 넘기며 느린 하루를 보내봐.","tori":"book","arts":[["읽고 자고, 다시 읽는 하루 📖 애독가를 위한 프리미엄 북스테이","cmvafqmwp00014ei6eyz8mq2b"],["완벽한 여름의 피난처, 전국 북 스테이 🏡","cmpgayu9v0006l3s4f6ddfi34"],["머릿속은 비우고, 새해 다짐은 채워가는 북스테이 3","cmkp3zfz40001uzj3ua129059"]]},
+  {"id":"C19-5","place":"out","who":"solo","mood":"chill","tag":"전통차 한 잔","idea":"전통차 카페 가기","desc":"차의 향과 맛을 천천히 느껴봐.","tori":"rest","arts":[["환절기 건강 챙기기! 한방차 카페 추천 2곳","cmhy61wl9003spdrr17ba93yd"],["진짜' 쌍화차를 마실 수 있는 전국 다방 5","cma1rcqe100041mw50bevh0lb"],["겨울 건강 한방에 챙기기! 한방 향기가 솔솔 나는 3곳","cm5yy1jz50004rhmvo6djg2qv"]]},
+  {"id":"C19-6","place":"out","who":"solo","mood":"chill","tag":"전망 한 조각","idea":"전망 좋은 곳 찾아가기","desc":"탁 트인 풍경으로 마음을 환기해봐.","tori":"honto","arts":[["부산의 시티뷰와 오션뷰 명소들 by. 혠","cmc18qpv8000gvymtlh1oy48q"],["오픈한 지 딱 한 달, 동네 주민도 모르는 야경 전망대","cmp6ggcaz000h361taq2kvixp"],["서울의 아름다움을 품은 무료 루프탑 3","cm2hy5uh9010cg36f5cyjoxef"]]},
+  {"id":"C19-7","place":"out","who":"solo","mood":"chill","tag":"잠깐 멈춤","idea":"명상 공간 방문하기","desc":"고요한 공간에서 호흡을 느껴봐.","tori":"rest","arts":[["고요를 체험하시오...🧘‍♀️ 입문자를 위한 명상 공간 2","cmm4kbwjp0001xvj2kunagpro"],["다 나가주세요, 혼자 있고 싶어요","cm2hy5uxx016kg36fd34x1f1k"],["세계 고양이의 날! 고양이와 함께하는 템플스테이","cmsil8ifi0001h4qld41hij48"]]},
+  {"id":"C20-1","place":"out","who":"solo","mood":"light","tag":"디저트 발견","idea":"새 디저트 가게 들르기","desc":"처음 보는 달콤함을 골라봐.","tori":"eat","arts":[["찐심이 느껴지는! 내공 있는 아이스크림 가게","cm2hy5vbc01aqg36fjkiqtf6z"],["말차 가고 우베 왔다! 전국~ 우베 맛집💜","cmn8kf845000ul70okaca87u7"],["입안 가득 가을이 스며드는 전국 제철 과일 디저트🍎 by. 주이","cmhn29cjt000a10yeiovsfgri"]]},
+  {"id":"C20-2","place":"out","who":"solo","mood":"light","tag":"펜의 취향","idea":"문구점에서 펜 써보기","desc":"손에 착 감기는 필기감을 찾아봐.","tori":"curious","arts":[["사각사각 특별한 만년필과 노트가 있는 문구점 2","cm2hy5twg00swg36fd88gynqe"],["12월은 일 년 동안의 고마움을 전하는 달, 선물 편집샵","cm5638jx7000b12b61fjsuw3z"],["반차쓰고 을지로 갈랭? 종이 한 장에서 시작하는 산책 코스","cmnpdfql10002n9qwfnz713di"]]},
+  {"id":"C20-3","place":"out","who":"solo","mood":"light","tag":"빈티지 탐험","idea":"빈티지샵 구경하기","desc":"시간이 남긴 취향을 둘러봐.","tori":"curious","arts":[["빈티지의 매력에 빠지는 시간, 서울과 대구 빈티지샵 모음","cm2hy5uk6011qg36fqfud3hvi"],["골목길 속 보석 같은 빈티지샵에 반하지 by. 민기적","cm5ghb4lk000cc4xdjmzmwc2v"],["득템하는 재미의 끝판왕, 빈티지샵 모음 사이트","cm2hy5uu10158g36f4lfviw2p"]]},
+  {"id":"C20-4","place":"out","who":"solo","mood":"light","tag":"소품 구경","idea":"로컬 소품샵 둘러보기","desc":"작은 물건 속 취향을 찾아봐.","tori":"curious","arts":[["배부르니 소화할 겸 걸어볼랭? 구경할 맛 나는 전국 소품샵 모음 3🛍️","cmf65xhkf000iadipzcf9p4gz"],["현직 소품샵 사장의 또.간.소 by. 오사장","cmbrbmv490004njjwjr7vp7mt"],["구경하다보면 시간 순삭, 홍대/합정 소품샵 4곳","cm2hy5vof01f2g36f8vzgwqvw"]]},
+  {"id":"C20-5","place":"out","who":"solo","mood":"light","tag":"짧은 커피","idea":"에스프레소 바 들르기","desc":"진한 한 잔으로 잠깐 쉬어가봐.","tori":"eat","arts":[["이탈리아 감성 가득, 에스프레소 바☕","cm2hy5s0v0040g36fbznzc15i"],["너무 좋아서 눈물 날뻔했어! 커피 오마카세 경험기 ☕️","cmtwdfxlp00014ik8salqg0gr"]]},
+  {"id":"C20-6","place":"out","who":"solo","mood":"light","tag":"미감 수집","idea":"감각적인 공간 둘러보기","desc":"공간의 색과 형태를 눈에 담아봐.","tori":"curious","arts":[["카페에 서도호 작품이 있다고? 미감 만점 서울 신상 공간","cmu6bvskq0002nkh1r1vgjmk3"],["디자인 스튜디오가 선보이는 미감 좋은 카페 ☕️","cmou27xxs0004oa8ahymsbi51"],["시간의 가치를 담은 곳, 빈티지 가구 쇼룸 🛋️","cmr32cky80002ldhtjynvrt83"]]},
+  {"id":"C21-1","place":"out","who":"friend","mood":"active","tag":"방탈출 도전","idea":"방탈출 게임 해보기","desc":"단서를 모아 탈출에 도전해봐.","tori":"excited","arts":[["방탈출 없나 방탈출 공포 방탈출 하러 가야쥬 🥴","cmpqf89ky000p2mkn0uhxh3z3"],["겨울 데이트 치트키, 2025년 최고의 방탈출 수상작 8곳","cmkfk6tb40001h2gb53yebs9f"]]},
+  {"id":"C21-2","place":"out","who":"friend","mood":"active","tag":"신나게 한 판","idea":"실내 액티비티 즐기기","desc":"몸을 움직이며 신나게 놀아봐.","tori":"excited","arts":[["발도 심장도 뜨거워지는 놀이터! 스텝핑","cm2hy5uij010yg36fg93ssjiy"],["짜릿함이 필요한 주말엔 여기서 놀고양, 어른들의 놀이터 스몹 고양점","cm2hy5u2l00v4g36faw1k3txd"],["차가운 빙판 위를 슝슝🎿 실내 아이스링크 3곳","cm2hy5utb014yg36fb9hfqruc"]]},
+  {"id":"C21-3","place":"out","who":"friend","mood":"active","tag":"산행 도전","idea":"가까운 산 올라보기","desc":"정상에 올라 시원한 바람을 만나봐.","tori":"travel","arts":[["숨이 찬 만큼 행복도 차오르는 주말 산행 by.루루","cmmymqya3003114p3ov761fwn"],["초보도 즐길 수 있는 등산 코스 모음","cm2hy5vdj01bcg36fekpeufyn"],["산속에 있어 에어컨이 필요 없었다! by. 큰뭉치","cm2hy5v2k0180g36fsgw9is21"]]},
+  {"id":"C21-4","place":"out","who":"friend","mood":"active","tag":"장날 구경","idea":"지역 오일장 구경하기","desc":"장날의 활기와 먹거리를 즐겨봐.","tori":"travel","arts":[["가볍게 떠나 두 손 무겁게 돌아오는 오일장 여행 by. 튭","cm5qb1bl00005payy54dg9p93"],["에디터도 몰랐던 국내 로컬 여행 지도, <로컬 100>","cmm4kpvtm00019eui8ujbprvw"]]},
+  {"id":"C21-5","place":"out","who":"friend","mood":"active","tag":"오늘은 셰프","idea":"쿠킹 클래스 체험하기","desc":"새로운 요리의 손맛을 배워봐.","tori":"sabujak","arts":[["오늘은 내가 생면파스타 요리사🧑🏻‍🍳 망원동 이색 데이트","cmu6f65ey0003ppkxb6y7ra8r"],["초여름의 쿠킹 클래스","cm2hy5std00d0g36fix202bh9"],["선재스님 따라 사찰음식 일일 체험🪷","cmkgixa3z0001u5wc0lokqwx3"]]},
+  {"id":"C21-6","place":"out","who":"friend","mood":"active","tag":"캠핑 기분","idea":"가볍게 캠핑 즐기기","desc":"장비 부담 없이 바깥 공기를 즐겨봐.","tori":"travel","arts":[["몸만 가볍게 떠나는 캠핑 3종 세트","cm2hy5s32004og36f0iwoyyj5"],["짐은 가볍게, 낭만은 무겁게🏕️ 근교 글램핑 5","cmotfaa2g0001h1z05pwu26z5"],["추석 앞두고 힐링 제대로, 리버뷰 캠핑장 3곳 추천🏕️","cmfozh8jx00052smi60ch1gl1"]]},
+  {"id":"C21-7","place":"out","who":"friend","mood":"active","tag":"뚜벅이 여행","idea":"대중교통으로 여행하기","desc":"차 없이 떠나는 여행의 재미를 느껴봐.","tori":"travel","arts":[["지하철과 버스면 OK! 인천 뚜벅이 여행지 모음","cmg0mk5l9000k10e77pu7zmk6"],["다채로운 경험을 차곡차곡, 강원도 영월 뚜벅이 여행","cmdqub5qz0001q5ap9nrayk8w"],["지하철 버스면 충분한 아산 뚜벅이 여행지4","cml0nmzk7000ac61f9ponte6c"]]},
+  {"id":"C22-1","place":"out","who":"friend","mood":"make","tag":"미술관 나들이","idea":"미술관 둘러보기","desc":"작품과 풍경을 천천히 눈에 담아봐.","tori":"read","arts":[["작품보다 풍경에 먼저 반할 걸🍂 가을에 가기 딱 좋은 미술관","cmuo3mtjv000613plgnraui59"],["사색이 필요한 날, 가을을 닮은 미술관으로","cm2hy5v7m019gg36fqypzfuxw"],["한적한 서울 근교 미술관 4곳 추천","cm2hy5rvc0024g36fwpc6kcm4"]]},
+  {"id":"C22-2","place":"out","who":"friend","mood":"make","tag":"손끝의 모양","idea":"도자기 공방 체험하기","desc":"서로 다른 취향을 흙으로 빚어봐.","tori":"sabujak","arts":[["내 손 끝에서 태어난, 하나뿐인 작품 만들기 경험 2곳","cm5qcaes4000b12y4n55786ji"],["반복되는 일상이 지루하다면, ‘손’을 써야할 때 by. 떼이","cm2hy5vtz01gyg36fgk1tnet2"],["귀여운 반려 도자기 만들어볼랭","cm2hy5tgc00lug36f9bt1ew8q"]]},
+  {"id":"C22-3","place":"out","who":"friend","mood":"make","tag":"박물관 탐험","idea":"이색 박물관 둘러보기","desc":"새로운 주제의 세계를 만나봐.","tori":"read","arts":[["여기는 꼭 한 번 가보고 싶어서, 오디움","cm2hy5vd501bag36f7qo1nuzn"],["이야기와 쉼이 있는 박물관, 온양민속박물관","cm2hy5ujs011gg36fzpez6ggs"],["영화 좋아한다면 성지인 곳🎬 한국영상자료원","cm9j8wk2j0008mzb3oszq08df"]]},
+  {"id":"C22-4","place":"out","who":"friend","mood":"make","tag":"프라이빗 상영","idea":"프라이빗 시네마 가기","desc":"편한 자세로 영화에 빠져봐.","tori":"read","arts":[["핸드폰도 배달음식도 가능한, 우리만의 프라이빗 시네마","cmmymgiuq002214p3cebtlu2f"],["제주도에도 독립영화관이 있다고? 당장 비행기표 끊어✈️ <숏트롱시네마>","cmfgetsfr00026mz2l016j84v"],["특별함이 있는 이색 영화관 2곳","cm2hy5tcu00k4g36f996f4hrr"]]},
+  {"id":"C22-5","place":"out","who":"friend","mood":"make","tag":"필름 속 하루","idea":"필름카메라 빌려 찍기","desc":"같은 하루를 다른 시선으로 담아봐.","tori":"read","arts":[["천천히 꼭꼭 씹어보는 맛, 필름카메라로 일상 담기 by.세모","cm2hy5u8w00x4g36fi4wv7417"],["오늘부터 내 주말은 필름으로 남길랭! 필름카메라 무료 대여","cm2hy5u4l00vug36firae09ve"]]},
+  {"id":"C23-1","place":"out","who":"friend","mood":"chill","tag":"돗자리 쉼표","idea":"야외 피크닉 즐기기","desc":"좋은 자리에 앉아 오래 쉬어봐.","tori":"rest","arts":[["이 날씨에 피크닉 안하면 섭하지💚 피크닉, 바베큐 카페 추천","cm2hy5sbg007eg36ffgcdw9rn"],["따사로운 봄볕을 즐겨요, 피크닉하기 좋은 카페 3곳","cm8mq52s1001uej2o66lhhbg2"],["도시락까지 챙겨주는 숲 속 힐링 캠프, 산들바람 따라 피크닉","cm2hy5ubv00yeg36fq017u5e7"]]},
+  {"id":"C23-2","place":"out","who":"friend","mood":"chill","tag":"예약한 여유","idea":"예약제 카페에서 쉬기","desc":"예약한 자리에서 느린 시간을 보내봐.","tori":"rest","arts":[["노이즈 캔슬링이 필요해🎧 우리끼리 즐기는 1%의 여유","cmo2ho0th000ca516fb86tgp8"],["순도 100%의 프라이빗 한 디저트 코스 카페 추천","cm2hy5uri014eg36fwkp675s2"],["강남에서 만난 신비로운 장소, 공간대여","cm2hy5uzt0174g36fkp80dr2u"]]},
+  {"id":"C23-3","place":"out","who":"friend","mood":"chill","tag":"온기 충전","idea":"프라이빗 스파 즐기기","desc":"따뜻한 물과 온기에 긴장을 풀어봐.","tori":"rest","arts":[["여기 진짜 한국 맞아요? 고기리에 등장한 역대급 사우나","cmuyb7h9e0006f1zf3vkh28fw"],["최고 기온 35도?! 이렇게 된 이상 이열치열 작전이랭🔥","cms8j9mc30008m0mg7mvbrkcw"],["우리끼리 따뜻하게! 프라이빗 사우나 3곳","cm2hy5ur7014bg36fckk6d7fk"]]},
+  {"id":"C23-4","place":"out","who":"friend","mood":"chill","tag":"느린 소도시","idea":"소도시에서 쉬다 오기","desc":"한적한 동네에서 발걸음을 늦춰봐.","tori":"travel","arts":[["용문이라고 들어봤나? 주말 보내기 딱이라구😏","cmtvaxm13000234mb804qio3l"],["가벼운 당일치기 여행, 고기동 추천 코스","cmjaqcnd500016k1c79wcxr2c"],["출판 마케터가 추천해! 파주 히든 스팟 by 조이","cmj8junnb00096pra7tjbtvph"]]},
+  {"id":"C23-5","place":"out","who":"friend","mood":"chill","tag":"차의 순서","idea":"티코스 즐기기","desc":"한 잔씩 달라지는 차 맛을 느껴봐.","tori":"rest","arts":[["따뜻한 차를 우리며🍵 천천히 즐기는 티 스페이스","cmkp0gcd20001ayyq4k81sn39"],["입 안에 가을 한 모금을 선사하는 카페 차의 계절","cm2hy5uiy0116g36fdswtrel6"],["진달래꽃 한 입 하랭! 서울 전통 다과 차림 코스","cm2hy5uxn016eg36fbykx710o"]]},
+  {"id":"C23-6","place":"out","who":"friend","mood":"chill","tag":"숲속 하룻밤","idea":"자연 속 숙소에서 쉬기","desc":"눈앞의 풍경만 보며 쉬어봐.","tori":"rest","arts":[["에너지를 꽉~ 채워줄게 자연 속 힐링 숙소🏡","cmu6c7s49000214ll8u4lbwih"],["쉼표 찍고 자연에 누울 수 있는 숙소 4곳","cmavuc9go0004jzhoecc1pbk4"],["가격이 믿기지 않는 자연 속 숙소","cm2hy5vmb01eig36fo4w3uvn8"]]},
+  {"id":"C23-7","place":"out","who":"friend","mood":"chill","tag":"비밀 공간","idea":"프라이빗 공간 방문하기","desc":"인원을 제한한 공간에서 천천히 머물러봐.","tori":"rest","arts":[["서울 근교 프라이빗 숲캉스🌳 예약제 비밀의 숲","cmqkarbor0008tjhkcmmqev5g"],["빠른 티켓팅은 필수! 🖼️ 경주 프라이빗 미술관","cm7imjs3s0004e51uhqvrtiqw"],["핸드폰도 배달음식도 가능한, 우리만의 프라이빗 시네마","cmmymgiuq002214p3cebtlu2f"]]},
+  {"id":"C24-1","place":"out","who":"friend","mood":"light","tag":"새로운 달콤함","idea":"이색 디저트 맛보기","desc":"궁금했던 맛을 한입 나눠봐.","tori":"eat","arts":[["창억떡 다음 여기! 전국의 숨은 떡 맛집을 찾아서","cmns9l0gq002ci5ft6dfapqko"],["말차 가고 우베 왔다! 전국~ 우베 맛집💜다채로운 이색 디저트로 달콤력을 채워보자","cm2hy5v50018ig36fh4eaalcn"],["디저트로 느끼는 해외의 맛, 동남아 이색 디저트 카페 3","cm5ghv84000091045qig83r9g"]]},
+  {"id":"C24-2","place":"out","who":"friend","mood":"light","tag":"오늘 한 컷","idea":"이색 포토부스 찍기","desc":"재미있는 콘셉트로 추억을 남겨봐.","tori":"excited","arts":[["포켓몬 카드가 1억⁉️ 초희귀 포켓몬 카드를 만드는 사진관","cmtmhxopj0007vd0a85mann14"],["공효진 신민아가 선택한 감도 높은 포토부스 📸","cmrnauvok000167rpm06zsois"],["조금 특별하게 찰칵! 추억을 남길랭, 전국 포토부스","cm2hy5v26017og36fwdmjcaq3"]]},
+  {"id":"C24-3","place":"out","who":"friend","mood":"light","tag":"오래된 취향","idea":"빈티지 소품샵 구경하기","desc":"눈길 가는 옛 물건을 찾아봐.","tori":"curious","arts":[["연희동 소품샵 ‘파파연희’｜LP와 빈티지 소품 구경하기 좋은 곳 🎵","cmg95ay3y0007v36lm381nzec"],["빈티지의 매력에 빠지는 시간, 서울과 대구 빈티지샵 모음","cm2hy5uk6011qg36fqfud3hvi"],["여기는 한국의 노팅힐","cm2hy5uph013wg36f9vrta5pu"]]},
+  {"id":"C24-4","place":"out","who":"friend","mood":"light","tag":"로컬 한 입","idea":"로컬 맛집 찾아가기","desc":"동네가 아끼는 한 끼를 맛봐.","tori":"eat","arts":[["토박이가 고르고 고른, 분당 3대 우동 맛집🍜","cmtmi3kb60005cnulqq8rgmqn"],["대구 로컬이 알려주는 대구 '또간집' 4","cmou20ajs0001oa8ahbc7r5fv"],["대전 빵축제 가는 길, 현지인이 추천하는 맛집 코스🍴","cmg95rja3000hyj0cptvqz9t7"]]},
+  {"id":"C24-5","place":"out","who":"friend","mood":"light","tag":"너의 취향은","idea":"소품 골라주기","desc":"서로 어울리는 물건을 찾아봐.","tori":"curious","arts":[["배부르니 소화할 겸 걸어볼랭? 구경할 맛 나는 전국 소품샵 모음 3🛍️","cmf65xhkf000iadipzcf9p4gz"],["현직 소품샵 사장의 또.간.소 by. 오사장","cmbrbmv490004njjwjr7vp7mt"],["12월은 일 년 동안의 고마움을 전하는 달, 선물 편집샵","cm5638jx7000b12b61fjsuw3z"]]},
+  {"id":"C24-6","place":"out","who":"friend","mood":"light","tag":"골목 탐험","idea":"낯선 동네 산책하기","desc":"처음 보는 골목에 발길을 맡겨봐.","tori":"travel","arts":[["갈테야 갈테야 이수로 갈테야🚶‍♀️ 이수 사당 데이트 코스","cmsim28270005tpjhimj0cin8"],["경의선숲길 따라 대흥역 산책 코스🚶","cmesal7vb0003d7108oq6y3d5"],["한적한 주말 나들이, 안양 동네 산책 by. 지수","cm2hy5uee00z6g36f4r2pfutm"]]},
+  {"id":"C25-1","place":"out","who":"couple","mood":"active","tag":"색다른 조종","idea":"이색 조종 체험하기","desc":"직접 움직이는 재미에 도전해봐.","tori":"excited","arts":[["내 손으로 쟁취하는 재물운💰 근교 이색 데이트 추천","cms8m81bb00011126fgre9sry"],["초보 운전자 주목! 전문가가 알려주는 고오급 운전 스킬","cmteopc720008j20009mcp04s"]]},
+  {"id":"C25-2","place":"out","who":"couple","mood":"active","tag":"자전거 여행","idea":"자전거로 도시 여행하기","desc":"페달을 밟으며 낯선 도시를 누벼봐.","tori":"travel","arts":[["자전거 여행의 계절 가을, 한강으로 떠나보자 by. 루치오","cm2hy5tu600s6g36floz4fyik"],["뻔하지 않은 춘천 여행 가보자고! by.은조이","cmanf56530004646zej5u9ske"]]},
+  {"id":"C25-3","place":"out","who":"couple","mood":"active","tag":"발로 한 판","idea":"실내 발판 게임 즐기기","desc":"발맞춰 움직이며 점수를 올려봐.","tori":"excited","arts":[["발도 심장도 뜨거워지는 놀이터! 스텝핑","cm2hy5uij010yg36fg93ssjiy"],["짜릿함이 필요한 주말엔 여기서 놀고양, 어른들의 놀이터 스몹 고양점","cm2hy5u2l00v4g36faw1k3txd"]]},
+  {"id":"C25-4","place":"out","who":"couple","mood":"active","tag":"숲속 캠핑","idea":"숲속 캠핑 떠나기","desc":"나무 사이에서 바깥의 하루를 보내봐.","tori":"travel","arts":[["싱그러운 자연 속으로 캠핑하러 가랭","cm2hy5vdl01big36fu85r6jaq"],["비가 내리고 감성이 흐르는","cm2hy5uwz0164g36fjtq8vsl2"],["호텔파도 캠핑파도 대만족할 9월 신상 숲캉스 숙소","cmtmheod80002w8ed5443scmf"]]},
+  {"id":"C25-5","place":"out","who":"couple","mood":"active","tag":"이색 클래스","idea":"이색 클래스 경험하기","desc":"낯선 재료로 만드는 재미를 느껴봐.","tori":"sabujak","arts":[["나의 애착 티셔츠를 찾아서 👕","cmp68ntec000amnao34qt7wby"],["비 오는 날엔 사부작사부작 한지 놀이","cm2hy5trq00qug36fieok9wvo"],["성수에서 출발하는 향기 기차🚂 프라이빗 취향 클래스","cmlu7vuu0001uqx6yf20xv6le"]]},
+  {"id":"C25-6","place":"out","who":"couple","mood":"active","tag":"색다른 한 끼","idea":"이색 맛집 찾아가기","desc":"한 끼가 여행이 되는 곳으로 떠나봐.","tori":"eat","arts":[["굳이?'의 다른 말은 낭만이랭! 낭만 100점 이색 맛집","cmteoltin0005j2008dz6rzok"],["지도에선 숨겨진 비밀 공간🍴 진짜 맛집은 지도 밖에 있대","cmvagj0vj0002ukb1yudjpvam"],["산뜻하게 봄맞이할랭? 제철 비건 맛집 로드🌱","cmlislhj90002qepjva9ikjg3"]]},
+  {"id":"C25-7","place":"out","who":"couple","mood":"active","tag":"하룻밤 여행","idea":"1박 2일 여행 떠나기","desc":"하룻밤 머물며 낯선 도시를 즐겨봐.","tori":"travel","arts":[["낭만이 있는 소도시 여행, 문경 1박 2일 코스","cmk4st451000558nl2o36rdfv"],["복슬복슬한 강화도 1박 2일 코스😺 by. 통이언니","cm8z941b4002gmtkrlg748lhk"],["잘 먹고 잘 쉬는, 주말 여행의 정석🚂 군산 추천 코스","cmqrtie4e0001oce759odezje"]]},
+  {"id":"C26-1","place":"out","who":"couple","mood":"make","tag":"작품 골라주기","idea":"미술관에서 작품 고르기","desc":"서로 보여주고 싶은 작품을 찾아봐.","tori":"read","arts":[["사색이 필요한 날, 가을을 닮은 미술관으로","cm2hy5v7m019gg36fqypzfuxw"],["중앙로역 근처 핫플을 곁들인 대구 당일치기 미술여행코스","cmm2uj1yw0005gornv1i5p2d1"],["한적한 서울 근교 미술관 4곳 추천","cm2hy5rvc0024g36fwpc6kcm4"]]},
+  {"id":"C26-2","place":"out","who":"couple","mood":"make","tag":"향의 조합","idea":"향수 만들어보기","desc":"좋아하는 향으로 취향을 표현해봐.","tori":"sabujak","arts":[["세상에 하나뿐인 나만의 향수💖 웯우드스튜디오 향수공방","cmaq23nxo0003ive2mtbsu0y3"],["클라스가 다른 원데이 클래스","cm2hy5sdz008ag36fba37u5jv"],["어디에서도 볼 수 없었던 문학과 향수의 만남 📓","cmoc85b5x000worj7fe37h5cq"]]},
+  {"id":"C26-3","place":"out","who":"couple","mood":"make","tag":"영화관 발견","idea":"특색 있는 영화관 가기","desc":"공간까지 특별한 영화 시간을 즐겨봐.","tori":"read","arts":[["낭만을 상영하는 장소, 소규모 영화관 2","cmisdvhkm000g4tw2osrtys8i"],["영화학도가 말아주는 독립·이색 영화관 7선 by. 윗스","cmdf81thg0002r73ow35wxqzb"],["취향을 상영하는 영화관, 무비랜드","cm2hy5u8l00x2g36fsotrsvn6"]]},
+  {"id":"C26-4","place":"out","who":"couple","mood":"make","tag":"같은 소리","idea":"청음 공간 방문하기","desc":"한 앨범에 나란히 귀 기울여봐.","tori":"read","arts":[["서울에서 다양한 방식으로 음악을 즐기고 싶다면? by. 요다","cmfz58cwb000dnn95hw22nonq"],["음악에 몰입하는 주말🎧 서울 스피커 맛집 청음 공간","cmtvazyr00001vg3uxofln5te"],["다가오는 봄🌸 아날로그의 낭만을 간직한 LP 공간 5","cmm3b7qqs0001zna32ah091e8"]]},
+  {"id":"C26-5","place":"out","who":"couple","mood":"make","tag":"책방의 시간","idea":"책방에서 머물기","desc":"책을 사이에 두고 취향을 나눠봐.","tori":"sabujak","arts":[["파도 파도 끝이 없는 독립 서점의 매력 속으로 📚","cmo9sceqy000gruq3q7no4322"],["연휴 후유증에는 책방 처방! 몰입을 돕는 서울 책 공간 2","cmlu71c3m0016r6qf3yb6w1gq"],["도심 속 나만의 아지트, 프라이빗 책방 2","cmk67ulkm000nrrwuxixk0ykq"]]},
+  {"id":"C26-6","place":"out","who":"couple","mood":"make","tag":"사진 속 시선","idea":"테마 정해 사진 찍기","desc":"같은 풍경을 다른 시선으로 남겨봐.","tori":"read","arts":[["사진작가들이 사랑하는 비밀의 경주 숲🌲","cme82dmgs00011490xmy0pruc"],["📸 사진 좀 찍는 에디터의 비밀 출사 스팟 대공개!","cmuo9sjer0001102wg6w3g869"],["건축 명소로 떠나는 봄 출사 여행 by.포토우기","cm2hy5uok013ig36flt3ns976"]]},
+  {"id":"C26-7","place":"out","who":"couple","mood":"make","tag":"예약한 한 끼","idea":"프라이빗 다이닝 즐기기","desc":"조용한 자리에서 한 접시씩 음미해봐.","tori":"eat","arts":[["특별한 날엔 의미 있게, 한우 맡김차림 3곳","cmlali4xp0015b1g7ivanx27j"],["막걸리 일인자가 말아주는 한식 파인 다이닝 🍶","cmmylydjf001xsh3dfwy4pyoo"],["와인 전문가 PICK! 와인 다이닝 & 페어링 팁 by 노네","cmjclwcjh000byp4n0tqb0csg"]]},
+  {"id":"C27-1","place":"out","who":"couple","mood":"chill","tag":"이국의 하룻밤","idea":"이국적인 숙소에서 쉬기","desc":"여권 없이 여행 온 기분을 느껴봐.","tori":"rest","arts":[["여권 없이 떠나는 발리 여행🏝️ 발리 감성 풀빌라","cmlaju6er000i5s47lsc8v9nt"],["신상인데 벌써부터 풀부킹! 노천탕이 있는 감성 카라반","cmuqjtgy50003wu7voodt95yv"],["여기가 한국의 모로코? 기차로 떠나는 모로코 여행","cmnie0b1z000z4q5i6m0inchv"]]},
+  {"id":"C27-2","place":"out","who":"couple","mood":"chill","tag":"계절 한 잔","idea":"계절 티코스 즐기기","desc":"차와 다과에 담긴 계절을 맛봐.","tori":"rest","arts":[["입 안에 가을 한 모금을 선사하는 카페 차의 계절","cm2hy5uiy0116g36fdswtrel6"],["따뜻한 차를 우리며🍵 천천히 즐기는 티 스페이스","cmkp0gcd20001ayyq4k81sn39"],["진달래꽃 한 입 하랭! 서울 전통 다과 차림 코스","cm2hy5uxn016eg36fbykx710o"]]},
+  {"id":"C27-3","place":"out","who":"couple","mood":"chill","tag":"도심의 초록","idea":"도심 정원 산책하기","desc":"도시 한가운데서 초록을 누려봐.","tori":"rest","arts":[["초초신상! 서울 한복판 9,000평 정원 개관 소식🌳","cmr3gwal2000h13fsali9kq8b"],["지난 달 개장한 수원의 식물원 2곳","cm2hy5vhe01csg36fobem33fg"],["초록초록 식물이 사는 곳","cm2hy5rte001gg36f7yz2ca3k"]]},
+  {"id":"C27-4","place":"out","who":"couple","mood":"chill","tag":"둘만의 온기","idea":"프라이빗 스파 즐기기","desc":"고요한 공간에서 온전히 쉬어봐.","tori":"rest","arts":[["여기 진짜 한국 맞아요? 고기리에 등장한 역대급 사우나","cmuyb7h9e0006f1zf3vkh28fw"],["최고 기온 35도?! 이렇게 된 이상 이열치열 작전이랭🔥","cms8j9mc30008m0mg7mvbrkcw"],["온몸이 꽁꽁🥶 추운 날엔 여기로, 따뜻한 이색 스파","cm6ym44vv0004jumnw5chj112"]]},
+  {"id":"C27-5","place":"out","who":"couple","mood":"chill","tag":"느린 여행","idea":"자연 따라 여행하기","desc":"아름다운 풍경에 발걸음을 맞춰봐.","tori":"travel","arts":[["노을이 가장 예쁜 가을엔 선셋 맛집 태안으로 떠날랭? by. 지니","cmgu8l253000uj9oli78dy3y3"],["명절 소음에서 벗어나, 느린 리듬 청도 여행","cmleyjyn20003kk7sz3qpkjc0"],["별이 쏟아지는 겨울밤, 영월 소규모 별 투어💫","cmlajs4ce000pthxlhz1ymma2"]]},
+  {"id":"C27-6","place":"out","who":"couple","mood":"chill","tag":"초록 속 쉼","idea":"자연 속 공간에서 쉬기","desc":"숲과 정원을 곁에 두고 쉬어봐.","tori":"rest","arts":[["10만 평 숲속에 오직 우리만! 프라이빗 숲캉스 스테이","cmqu9v9qb00023lj5e76e2tlo"],["정원 딸린 단독 주택에서 하룻밤🏡 수목원 가든 스테이","cmmoe8trq002oxb4f5zrmjan2"],["자연 속 사유를 위한 공간, 경북 사유원","cm2hy5t2o00g8g36f4s78z0ch"]]},
+  {"id":"C28-1","place":"out","who":"couple","mood":"light","tag":"디저트 탐험","idea":"이색 디저트 맛보기","desc":"익숙한 데이트에 새 맛을 더해봐.","tori":"eat","arts":[["<천하제빵> 만겹 크로와상 & 소금 치아바타, 바로 여기!","cmlkenknf001sxoezxvy1h28z"],["조금씩 다양하게, 30가지 스프레드가 있는 식빵집🎨","cmkgnb2gj0002m463kxdwfuwz"],["이색 데이트로 딱! 커스텀 아이스크림 체험","cmpge2zh1000ww3f4mdwixqyg"]]},
+  {"id":"C28-2","place":"out","who":"couple","mood":"light","tag":"기념 한 컷","idea":"포토부스에서 사진 찍기","desc":"오늘의 표정을 한 장에 담아봐.","tori":"excited","arts":[["공효진 신민아가 선택한 감도 높은 포토부스 📸","cmrnauvok000167rpm06zsois"],["포켓몬 카드가 1억⁉️ 초희귀 포켓몬 카드를 만드는 사진관","cmtmhxopj0007vd0a85mann14"],["조금 특별하게 찰칵! 추억을 남길랭, 전국 포토부스","cm2hy5v26017og36fwdmjcaq3"]]},
+  {"id":"C28-3","place":"out","who":"couple","mood":"light","tag":"처음 걷는 길","idea":"낯선 동네 산책하기","desc":"늘 가던 길 대신 새 골목을 걸어봐.","tori":"travel","arts":[["갈테야 갈테야 이수로 갈테야🚶‍♀️ 이수 사당 데이트 코스","cmsim28270005tpjhimj0cin8"],["이번 주말 데이트 코스, 서울 연희동에서","cm2hy5txq00tcg36fbv8jjgpk"],["평범함 속에 숨은 보석 동네, 서울 종암동","cm2hy5sd40082g36fw243imh4"]]},
+  {"id":"C28-4","place":"out","who":"couple","mood":"light","tag":"카페의 변신","idea":"이색 카페 찾아가기","desc":"문을 열면 달라지는 분위기를 즐겨봐.","tori":"curious","arts":[["문을 여는 순간 세계관이 바뀌는 이색 카페 6 ☕️","cmigxjy220001g75o5gbq2jlt"],["이곳은 마법 세계, 해리포터에 진심인 카페와 바 4곳","cm2hy5trz00r2g36ftv98khuw"],["ㄴr己б 일촌 맺을㉣ㅐ?' 그 시절 추억이 떠오르는 카페 & 사진관","cm9j8po3o000bl1crwouwmo9q"]]},
+  {"id":"C28-5","place":"out","who":"couple","mood":"light","tag":"한 장의 마음","idea":"엽서 골라주기","desc":"서로 떠오르는 그림 한 장을 골라봐.","tori":"curious","arts":[["고르고 고른 마음만 담아내는 곳, 엽서 가게","cm5kt00sl00034s3fvidy6h2x"],["Dear. 미래의 나💌 편지와 관련된 다정한 공간들","cmkxj7sex0003l5s3vem86qtg"],["여행 중 편지를 쓰고 가는 곳","cm56407bk000aduvvy547cryl"]]},
+  {"id":"C29-1","place":"out","who":"family","mood":"active","tag":"동심 충전","idea":"놀이동산 가보기","desc":"웃음 나는 놀이로 하루를 채워봐.","tori":"excited","arts":[["아차! 나 어린이 아니었지? 어린이대공원 나들이 코스 🎠","cm37erlb50002fjj6ewvi1cqc"],["토박이가 알려주는 완벽한 당진 코스 😎","cmauq1q2200057ldcnss2gxay"],["흰 눈 사이로~ 썰매를 타고~","cm2hy5ttr00rrg36famahwmga"]]},
+  {"id":"C29-2","place":"out","who":"family","mood":"active","tag":"레일 위 여행","idea":"테마 열차 타보기","desc":"이동하는 순간도 여행으로 즐겨봐.","tori":"travel","arts":[["칙칙폭폭 새로운 기차 여행 by. 유현","cmbhgb173000lnwwnaasns1mz"],["푸르른 풍경과 함께하는 기차여행🚊 백두대간협곡열차","cm2hy5sfs0090g36fv8liki8x"],["효도여행으로 딱! 파도 대신 레일을 타는 크루즈","cmkqcj0100002zpysi3l0oyqx"]]},
+  {"id":"C29-3","place":"out","who":"family","mood":"active","tag":"장날 나들이","idea":"지역 오일장 구경하기","desc":"시장 골목의 활기를 느껴봐.","tori":"eat","arts":[["가볍게 떠나 두 손 무겁게 돌아오는 오일장 여행 by. 튭","cm5qb1bl00005payy54dg9p93"],["명절 소음에서 벗어나, 느린 리듬 청도 여행","cmleyjyn20003kk7sz3qpkjc0"]]},
+  {"id":"C29-4","place":"out","who":"family","mood":"active","tag":"근교로 하루","idea":"근교 당일치기 떠나기","desc":"멀지 않은 도시에서 하루를 즐겨봐.","tori":"travel","arts":[["에디터가 직접 다녀온 서산 코스 🌳","cmpds617i0002dfd9z9mmhmns"],["근교 나들이 완성! 에디터가 다녀온 원주 코스 추천","cmfv2w8oa0006stxe7v2lzdrx"],["에디터가 10년간 다닌 남양주 코스 🚗","cmc17lut70005766h3mdnvxrs"]]},
+  {"id":"C29-5","place":"out","who":"family","mood":"active","tag":"바비큐 나들이","idea":"당일치기 캠핑 가기","desc":"바깥에서 구워 먹는 한 끼를 즐겨봐.","tori":"travel","arts":[["가족·반려동물도 다같이! 당일치기 바베큐 캠핑장 5곳","cmg8vy52z000hucqdynpxp8gp"],["가을 한가운데서 즐기는 바베큐 파티","cm2hy5u1100ugg36fkfa0vq02"],["우리끼리 잠시 바람 쐬러 가볼랭? 제부도 프라이빗 캐빈","cm2hy5uwo015yg36fzn28kcuc"]]},
+  {"id":"C29-6","place":"out","who":"family","mood":"active","tag":"우리만의 풀","idea":"풀빌라에서 물놀이하기","desc":"붐비지 않는 수영장에서 신나게 놀아봐.","tori":"excited","arts":[["문 여는 순간 다른 세상이! 프라이빗 풀빌라 4","cmq86n8s80001rwmzkpn68eme"],["여권 없이 떠나는 발리 여행🏝️ 발리 감성 풀빌라","cmlaju6er000i5s47lsc8v9nt"],["뜨끈한 물에서 힐링, 프라이빗 노천 숙소","cm2hy5su000deg36fe2zny278"]]},
+  {"id":"C30-1","place":"out","who":"family","mood":"make","tag":"호기심 나들이","idea":"문화 공간 둘러보기","desc":"새로운 공간에서 궁금증을 채워봐.","tori":"curious","arts":[["나랑 영감 찾으러 떠날랭? 대전 영감 수집 코스 by. 유나","cm2hy5uic010sg36fig03eodk"],["농촌에 등장한 매력 넘치는 문화공간","cm2hy5sly00aug36fmroa5vjk"],["빠른 티켓팅은 필수! 🖼️ 경주 프라이빗 미술관","cm7imjs3s0004e51uhqvrtiqw"]]},
+  {"id":"C30-2","place":"out","who":"family","mood":"make","tag":"역사 한 바퀴","idea":"문화유산 따라 여행하기","desc":"오래된 이야기 속으로 걸어가봐.","tori":"travel","arts":[["숨은 명당이 가득한 부여 여행 코스","cm2hy5vjl01dmg36fe3yz5viy"],["짧은 연휴 치트키! 서울 근교, 남한산성 당일치기 코스","cmrn0pvwp00016wcn2znlde60"],["왕사남 따라 영월 여행, 랭랭이 지도 속에 저🫶장😉","cmmd6xj0l00079j0e3mee4j07"]]},
+  {"id":"C30-3","place":"out","who":"family","mood":"make","tag":"도서관 탐험","idea":"특화 도서관 둘러보기","desc":"책과 예술이 만나는 공간을 즐겨봐.","tori":"book","arts":[["1타 2피 도서관 피서 여행, 의정부 도서관 투어","cm2hy5tgk00m2g36fcnutfgnr"],["도서관이 왜 이렇게 예뻐? 미술관 옆 도서관의 매력","cmpz7swc70001iz8iqg2qxn93"],["책 읽고, 드라이브는 덤이야: 충청도 도서관, 북카페 탐방","cmff6j06700052ym9du4leeak"]]},
+  {"id":"C30-4","place":"out","who":"family","mood":"make","tag":"박물관 탐방","idea":"주제 있는 박물관 가기","desc":"물건에 담긴 이야기를 발견해봐.","tori":"read","arts":[["핫&힙 전통공예의 매력에 퐁당, 서울공예박물관","cm2hy5toh00pkg36fy2w8w07t"],["서울이라는 걸 잠시 잊게 해주는, 목인박물관 목석원","cm2hy5vm801egg36fskkvddvj"],["모두의 마블 모두 해~🎵 넷마블 게임 박물관","cm9j8j8sz0004l1crqqqgjfmz"]]},
+  {"id":"C30-5","place":"out","who":"family","mood":"make","tag":"밤하늘 산책","idea":"별 보러 떠나기","desc":"도시의 불빛을 벗어나 하늘을 올려봐.","tori":"read","arts":[["서울에서 가장 가까운 별구경 2곳","cm2hy5v8p01a0g36f4gb2r8ny"]]},
+  {"id":"C31-1","place":"out","who":"family","mood":"chill","tag":"수목원 쉼표","idea":"수목원 천천히 걷기","desc":"식물과 풍경을 느린 걸음으로 만나봐.","tori":"rest","arts":[["호랑이가 살고 있는 아시아 최대 규모 수목원 🐯","cm2hy5vsu01ggg36fc2zl30ji"],["이번 주말엔 자연 속으로, 봄날의 산책 스팟","cmo164kkc000h25wgsrxvy8ep"],["560년 만에 공개된 비밀의 정원 🗝️","cm564gcym0007871wbcjw2b0i"]]},
+  {"id":"C31-2","place":"out","who":"family","mood":"chill","tag":"고요한 산책","idea":"사찰 거닐기","desc":"나무와 기와 사이로 천천히 걸어봐.","tori":"rest","arts":[["봄에 더 아름다운 사찰 3곳","cm2hy5up1013qg36f2dij9bj5"],["벚꽃이 피면 충남으로 오랭~ 사랑스러운 벚꽃 사찰 5","cmng529bb0008lh4o2ghkwkr9"],["단돈 3만 원으로 떠나는 '절캉스'! 전국 템플스테이🪷","cmn64uhjs0002xyfp68w5nlet"]]},
+  {"id":"C31-3","place":"out","who":"family","mood":"chill","tag":"노천탕 쉼표","idea":"노천탕 숙소에서 쉬기","desc":"따뜻한 물에 몸을 담그고 풍경을 봐.","tori":"rest","arts":[["뜨끈한 물에서 힐링, 프라이빗 노천 숙소","cm2hy5su000deg36fe2zny278"],["찬 바람 부는 날씨엔, 뜨-끈한 힐링 스파 숙소 3곳","cm2hy5rrn0012g36fs0h3hq6w"],["신상인데 벌써부터 풀부킹! 노천탕이 있는 감성 카라반","cmuqjtgy50003wu7voodt95yv"]]},
+  {"id":"C31-4","place":"out","who":"family","mood":"chill","tag":"한옥의 하루","idea":"한옥 숙소에서 쉬기","desc":"고즈넉한 공간에서 느리게 머물러봐.","tori":"rest","arts":[["부모님과 한옥에서 휴식을, 호텔 왕의 지밀","cm2hy5umf012wg36feouqwt4p"],["기차는 무료, 여행 경비는 반값💸 해남 추천 코스","cmnonvmpn0001q5kgp6eg2ahw"],["자연 속에서 잠시 쉬어가기, 오대산자연명상마을 옴뷔","cm2hy5v5e018qg36ffn0h0atk"]]},
+  {"id":"C31-5","place":"out","who":"family","mood":"chill","tag":"피크닉의 여유","idea":"피크닉 공간에서 쉬기","desc":"햇살 좋은 자리에 오래 앉아봐.","tori":"rest","arts":[["이 날씨에 피크닉 안하면 섭하지💚 피크닉, 바베큐 카페 추천","cm2hy5sbg007eg36ffgcdw9rn"],["따사로운 봄볕을 즐겨요, 피크닉하기 좋은 카페 3곳","cm8mq52s1001uej2o66lhhbg2"],["햇살 샤워를 하며 북크닉을 즐겨요, 도서관 피크닉","cm2hy5u7m00wug36fw3un3n7n"]]},
+  {"id":"C31-6","place":"out","who":"family","mood":"chill","tag":"드라이브 쉼표","idea":"근교 카페에서 쉬기","desc":"가볍게 달려가 여유를 즐겨봐.","tori":"rest","arts":[["가벼운 당일치기 여행, 고기동 추천 코스","cmjaqcnd500016k1c79wcxr2c"],["짧은 연휴 치트키! 서울 근교, 남한산성 당일치기 코스","cmrn0pvwp00016wcn2znlde60"],["주말이 길어지는 방법, 원주 여행 코스","cmkescnfp000210iwendt16r2"]]},
+  {"id":"C31-7","place":"out","who":"family","mood":"chill","tag":"느린 여행길","idea":"힐링 여행 떠나기","desc":"일정을 덜고 풍경 곁에서 쉬어봐.","tori":"travel","arts":[["조용한 소도시 감성 가득, 구례 여행 추천 코스","cmpz6taxu0002acloo4gp1t9j"],["소도시의 한적함이 그대로 묻어난 스테이 4","cmmw7xqei0001jpoaehrj8qki"],["올여름 휴가, 남해여행 어때?","cmr332ibs000210lzfro8ysc6"]]},
+  {"id":"C32-1","place":"out","who":"family","mood":"light","tag":"지역의 한 끼","idea":"로컬 맛집 찾아가기","desc":"오래 사랑받은 동네의 맛을 만나봐.","tori":"eat","arts":[["대구 로컬이 알려주는 대구 '또간집' 4","cmou20ajs0001oa8ahbc7r5fv"],["찬 바람 부는 날엔, 수원·용인·안성 노포 맛집 4곳","cmips15n60002v8449xruq9ve"],["먹으러 가는 여행 준비 완료🗺️ 맛집 가이드북 3","cmejbk8p40001emjic4lbzz8r"]]},
+  {"id":"C32-2","place":"out","who":"family","mood":"light","tag":"지도 속 여행","idea":"테마 지도 따라 나들이","desc":"마음에 드는 핀 하나로 떠나봐.","tori":"travel","arts":[["전국 떡 맛집 지도, 넷플릭스 ‘떡의 나라’에 나온 베스트 떡집 10곳 🍡","cmgsy1saw000fj5i1c3k20cpi"],["에디터도 몰랐던 국내 로컬 여행 지도, <로컬 100>","cmm4kpvtm00019eui8ujbprvw"],["🍁 이 지도 하나면 단풍 나들이 고민 끝! 전국 단풍 지도","cmv7u0s560007avxmuzh8gq66"]]},
+  {"id":"C32-3","place":"out","who":"family","mood":"light","tag":"여행의 한 장","idea":"여행지 사진관 가기","desc":"여행의 표정을 사진으로 남겨봐.","tori":"travel","arts":[["주인장이 궁금해지는 유쾌한 이색 사진관","cmanehsz60004trueusxeg87z"],["그 시절 감성 한가득📸 금빛사진관에서 찍는 추억 한 장","cmhn1dr210003x9g973nq7abt"]]},
 ];
 
 // 뽑기 후보 풀(모드에 따라 바뀜) — 기본은 전체
@@ -766,17 +943,8 @@ const TORIS = [
   { id:"sp500",   name:"스페셜토리 Ⅳ", img:"tori-sp4.png", how:"버킷 500개 달성",  special:true },
 ];
 
-// 카드 성격(tag) → 토리 (지금은 이미지 있는 8종에 매핑)
-const TAG_TORI = {
-  "감성 산책":"curious","집콕 힐링":"home","자연 충전":"travel","미식 탐험":"eat",
-  "취향 수집":"sabujak","물멍 타임":"rest","몸 깨우기":"excited","문화 충전":"honto",
-  "손끝 몰입":"sabujak","책과 함께":"book","밤 산책":"travel","로컬 여행":"travel",
-  "달콤 휴식":"eat","감성 기록":"read","동네 재발견":"curious","집콕 파티":"excited",
-  "정주행":"read","홈 베이킹":"sabujak","공간 리셋":"home","홈트 타임":"excited",
-  "보드게임":"home","요리 도전":"eat",
-};
 const toriById = id => TORIS.find(t => t.id === id);
-const toriForIdea = idea => toriById(TAG_TORI[idea.tag] || "home");
+const toriForIdea = idea => toriById(idea.tori) || toriById("home");
 
 // 토리별 홈 배경 씬 일러스트 (있는 토리만) — 파일 추가하면 여기 매핑
 const TORI_SCENE = {
@@ -840,32 +1008,18 @@ const QUIZ = [
   ]},
   { q: "오늘의 에너지는 어때요?", key: "mood", options: [
       { emoji:"⚡", label:"활기차게", value:"active" },
-      { emoji:"🎨", label:"몰입해서", value:"make" },
+      { emoji:"🎨", label:"몰입하며", value:"make" },
       { emoji:"🍃", label:"느긋하게", value:"chill" },
-      { emoji:"🛋️", label:"늘어지게", value:"rest" },
+      { emoji:"🎈", label:"가볍게", value:"light" },
   ]},
 ];
 
-// 주말토리 아티클 큐레이션 — 실제 콘텐츠로 교체하세요
-// thumb: 지금은 플레이스홀더(그라데이션 + 이모지). 실제 썸네일 이미지 경로를 넣으려면 img:"assets/..." 추가
-// url: 실제 아티클 링크로 교체
-const ARTICLES = [
-  { title:"드디어 복숭아 시즌이숭🍑 복숭아 빙수 성지 6", img:"article-1.webp", emoji:"🍑", color:["#FFDDE4","#FFB2C6"], tags:["out","eat","chill"], url:"https://joomaltory.com/feed/cmrbvu6710008ggx7hrxj0827" },
-  { title:"장마철에도 뽀송뽀송🫧 전국 이색 도서관", img:"article-2.webp", emoji:"📚", color:["#D2ECF7","#9FD3EB"], tags:["out","chill","rest"], url:"https://joomaltory.com/feed/cmrd4vj4i000510logxx18h54" },
-  { title:"아이보리 매직🍶 서울 이색 막걸리 맛집 4", img:"article-3.webp", emoji:"🍶", color:["#F4EAD0","#E6D2A0"], tags:["out","eat","active"], url:"https://joomaltory.com/feed/cmqrv5vxl0002fysa2ggv6tar" },
-];
-
-// 뽑힌 아이디어와 어울리는 아티클 고르기
-function relatedArticles(idea, n = 3) {
-  const scored = ARTICLES.map(a => {
-    let s = 0;
-    if (a.tags.includes(idea.place)) s += 2;
-    if (a.tags.includes(idea.mood)) s += 2;
-    if (idea.who && idea.who.some(w => a.tags.includes(w))) s += 1;
-    return { a, s };
-  }).sort((x, y) => (y.s - x.s) || (Math.random() - 0.5));
-  return scored.slice(0, n).map(x => x.a);
+// 미션별로 연결된 주말토리 아티클 (최대 3개)
+const FEED_URL = "https://joomaltory.com/feed/";
+function relatedArticles(idea) {
+  return idea.arts.map(([title, id]) => ({ title, url: FEED_URL + id, img: `thumbs/${id}.webp` }));
 }
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 
 /* =========================================================
    상태 & 저장 (localStorage)
@@ -873,8 +1027,6 @@ function relatedArticles(idea, n = 3) {
 const STORE = {
   get name() { return localStorage.getItem("jt_name") || ""; },
   set name(v) { localStorage.setItem("jt_name", v); },
-  get region() { return localStorage.getItem("jt_region") || ""; },
-  set region(v) { localStorage.setItem("jt_region", v); },
   get bucket() { try { return JSON.parse(localStorage.getItem("jt_bucket") || "[]"); } catch { return []; } },
   set bucket(arr) { localStorage.setItem("jt_bucket", JSON.stringify(arr)); },
 };
@@ -937,6 +1089,7 @@ function go(screen) {
   if (screen === "picker") setupPicker();
   if (screen === "pickerQuiz") renderQuiz();
   if (screen === "bucket") renderBucket();
+  if (screen === "quest") renderQuest();
   const el = document.getElementById(screen); if (el) el.scrollTop = 0;
 }
 document.querySelectorAll("[data-go]").forEach(el =>
@@ -947,16 +1100,13 @@ document.querySelectorAll("[data-go]").forEach(el =>
    화면 1 — 웰컴
    ========================================================= */
 const nameInput = document.getElementById("nameInput");
-const regionInput = document.getElementById("regionInput");
 const startBtn = document.getElementById("startBtn");
 
-function validateWelcome() { startBtn.disabled = !(nameInput.value.trim() && regionInput.value); }
+function validateWelcome() { startBtn.disabled = !nameInput.value.trim(); }
 nameInput.addEventListener("input", validateWelcome);
-regionInput.addEventListener("change", validateWelcome);
 
 startBtn.addEventListener("click", () => {
   STORE.name = nameInput.value.trim();
-  STORE.region = regionInput.value;
   go("home");
 });
 
@@ -1016,6 +1166,16 @@ function refreshHome() {
   const done = STORE.bucket.filter(b => b.done).length;
   document.getElementById("bucketMenuDesc").textContent =
     cnt ? `${cnt}개 중 ${done}개 달성 중이에요` : "해보고 싶은 걸 기록해요";
+
+  // 오늘의 퀘스트 메뉴 설명 (오늘 완료 여부 반영)
+  const qmd = document.getElementById("questMenuDesc");
+  if (qmd) {
+    const qDoneToday = !!getQuestDone()[todayStr()];
+    const qStreak = questStreak();
+    qmd.textContent = qDoneToday
+      ? (qStreak > 1 ? `오늘 완료! 🔥 ${qStreak}일 연속` : "오늘 완료! 🎉 내일 또 만나요")
+      : "매일 하나씩, 작은 미션 수행!";
+  }
 
   // 도감 아이콘 뱃지 (모은 토리 수)
   const n = getToris().length;
@@ -1136,8 +1296,8 @@ function setupPicker() {
       <div class="face back"><div class="frame"><img src="logo-face.svg" alt=""></div></div>
       <div class="face front">
         <div>
-          <div class="cardemoji">${idea.emoji}</div>
-          <div class="cardtag">${idea.tag}</div>
+          <img class="cardtori" src="${toriForIdea(idea).img}" alt="" />
+          <div class="cardtag">${esc(idea.tag)}</div>
         </div>
       </div>`;
     card.addEventListener("click", () => choose(card, idea));
@@ -1199,15 +1359,13 @@ function choose(card, idea) {
   }
   // 그 외(같은 날 두 번째 이후 뽑기)엔 라벨 없음
 
-  // 어울리는 아티클 큐레이션
-  const arts = relatedArticles(idea, 3);
+  // 이 미션에 연결된 아티클
+  const arts = relatedArticles(idea);
   const list = document.getElementById("articleList");
   list.innerHTML = arts.map(a => `
     <a class="article-card" data-url="${a.url}">
-      <div class="article-thumb" style="background:linear-gradient(145deg,${a.color[0]},${a.color[1]})">${
-        a.img ? `<img src="${a.img}" alt="" loading="lazy" />` : a.emoji
-      }</div>
-      <div class="article-title">${a.title}</div>
+      <div class="article-thumb" style="background:#F4ECDD"><img src="${a.img}" alt="" loading="lazy" /></div>
+      <div class="article-title">${esc(a.title)}</div>
     </a>`).join("");
   list.querySelectorAll(".article-card").forEach(el => el.addEventListener("click", () => {
     const u = el.dataset.url;
@@ -1260,19 +1418,10 @@ function answerQuiz(key, value) {
   else finishQuiz();
 }
 
-function scoreIdea(it, a) {
-  let s = 0;
-  if (it.place === a.place) s += 2;
-  if (it.who.includes(a.who)) s += 2;
-  if (it.mood === a.mood) s += 1;
-  return s;
-}
-
 function finishQuiz() {
-  const scored = IDEAS
-    .map(it => ({ it, s: scoreIdea(it, quizAnswers) }))
-    .sort((x, y) => (y.s - x.s) || (Math.random() - 0.5));
-  pickerPool = scored.slice(0, 6).map(x => x.it);  // 상위 매칭 6개 중에서 뽑기
+  // 3가지 답이 모두 같은 조합의 미션(3~7개) 중에서 뽑기
+  const a = quizAnswers;
+  pickerPool = IDEAS.filter(it => it.place === a.place && it.who === a.who && it.mood === a.mood);
   pickMode = "quiz";
   go("picker");
 }
@@ -1435,6 +1584,156 @@ document.getElementById("doneSheet").addEventListener("click", e => {
 });
 
 /* =========================================================
+   오늘의 퀘스트 — 매일 하나씩 주어지는 작은 미션 (자유롭게 추가/수정)
+   ========================================================= */
+const QUESTS = [
+  { emoji:"🌤️", text:"오늘 하늘을 사진 한 장으로 남겨보세요" },
+  { emoji:"☕", text:"좋아하는 음료 한 잔, 첫 모금을 천천히 음미해보세요" },
+  { emoji:"🚶", text:"평소 안 가던 길로 10분만 걸어보세요" },
+  { emoji:"🎧", text:"오래 안 들은 플레이리스트를 다시 틀어보세요" },
+  { emoji:"📸", text:"오늘 가장 예뻤던 순간을 찍어두세요" },
+  { emoji:"🌿", text:"근처의 초록(식물·나무·화분)을 하나 찾아보세요" },
+  { emoji:"✍️", text:"오늘 감사한 일 한 가지를 적어보세요" },
+  { emoji:"🍜", text:"먹고 싶었던 메뉴, 오늘 한 번 시도해보세요" },
+  { emoji:"📚", text:"책이나 아티클을 딱 3장만 읽어보세요" },
+  { emoji:"💌", text:"오랜만인 사람에게 안부 한 줄 보내보세요" },
+  { emoji:"🧹", text:"책상 위 딱 한 곳만 정리해보세요" },
+  { emoji:"🌅", text:"해질 무렵 하늘을 5분간 바라보세요" },
+  { emoji:"🎨", text:"오늘 본 색 중 가장 마음에 든 색을 찾아보세요" },
+  { emoji:"🤳", text:"거울을 보고 나에게 칭찬 한마디 해주세요" },
+  { emoji:"🪟", text:"창문을 활짝 열고 환기 한 번 시켜보세요" },
+  { emoji:"🍫", text:"작은 간식으로 나에게 상을 주세요" },
+  { emoji:"🤸", text:"5분 스트레칭으로 몸을 깨워보세요" },
+  { emoji:"🎵", text:"신나는 노래 한 곡, 크게 따라 불러보세요" },
+  { emoji:"🕯️", text:"좋아하는 향(향초·디퓨저·비누)을 맡아보세요" },
+  { emoji:"🐾", text:"길에서 만난 동물이나 꽃에 눈인사해보세요" },
+  { emoji:"📝", text:"이번 주말에 하고 싶은 일 하나를 버킷에 적어보세요" },
+  { emoji:"🌙", text:"자기 전, 오늘 좋았던 일 하나를 떠올려보세요" },
+  { emoji:"🫧", text:"휴대폰 없이 10분만 멍때려보세요" },
+  { emoji:"🎁", text:"나를 위한 작은 선물을 장바구니에 담아보세요" },
+  { emoji:"🚲", text:"동네 한 바퀴, 천천히 돌아보세요" },
+  { emoji:"🥤", text:"물 한 컵을 마시며 잠깐 쉬어가세요" },
+  { emoji:"🌸", text:"지금 기분을 이모지 하나로 표현해보세요" },
+  { emoji:"📮", text:"미뤄둔 작은 일 하나를 지금 해치워보세요" },
+  { emoji:"🍀", text:"창밖 풍경을 사진으로 남겨보세요" },
+  { emoji:"😊", text:"누군가에게 먼저 웃으며 인사해보세요" },
+];
+
+function getQuestDone() { try { return JSON.parse(localStorage.getItem("jt_questDone") || "{}"); } catch { return {}; } }
+function setQuestDone(m) { try { localStorage.setItem("jt_questDone", JSON.stringify(m)); return true; } catch (e) { return false; } }
+function dateKey(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; }
+function todayQuest() {
+  const s = todayStr();
+  let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return QUESTS[h % QUESTS.length];
+}
+function questStreak() {
+  const done = getQuestDone();
+  let d = new Date();
+  if (!done[todayStr()]) d.setDate(d.getDate() - 1); // 오늘 아직이면 어제부터 카운트
+  let n = 0;
+  while (done[dateKey(d)]) { n++; d.setDate(d.getDate() - 1); }
+  return n;
+}
+function questTotal() { return Object.keys(getQuestDone()).length; }
+
+function renderQuest() {
+  const q = todayQuest();
+  const done = getQuestDone();
+  const rec = done[todayStr()];
+  const isDone = !!rec;
+
+  document.getElementById("questEmoji").textContent = q.emoji;
+  document.getElementById("questText").textContent = q.text;
+
+  const now = new Date();
+  const dows = ["일","월","화","수","목","금","토"];
+  document.getElementById("questDate").innerHTML =
+    `${now.getMonth()+1}월 ${now.getDate()}일 <b>${dows[now.getDay()]}요일</b> · 오늘의 미션`;
+
+  const st = questStreak();
+  document.getElementById("questStreak").textContent =
+    st > 0 ? `🔥 ${st}일 연속 수행 중!` : "🌱 오늘부터 시작해봐요";
+
+  const card = document.getElementById("questCard");
+  card.classList.toggle("done", isDone);
+  document.getElementById("questDoneTag").style.display = isDone ? "" : "none";
+
+  const photoEl = document.getElementById("questPhoto");
+  if (isDone && rec.photo) { photoEl.src = rec.photo; photoEl.style.display = ""; }
+  else { photoEl.style.display = "none"; photoEl.removeAttribute("src"); }
+
+  const act = document.getElementById("questActions");
+  act.innerHTML = isDone
+    ? `<button class="photo-btn" id="questAddPhotoBtn">📷 ${rec.photo ? "사진 바꾸기" : "인증샷 추가하기"}</button>`
+    : `<button class="btn-primary" id="questCompleteBtn">완료했어요 ✅</button>
+       <button class="photo-btn" id="questAddPhotoBtn">📷 인증샷 남기기 (선택)</button>`;
+  const cb = document.getElementById("questCompleteBtn");
+  if (cb) cb.addEventListener("click", () => completeQuest());
+  document.getElementById("questAddPhotoBtn")
+    .addEventListener("click", () => document.getElementById("questPhotoInput").click());
+
+  renderQuestWeek();
+  const total = questTotal();
+  document.getElementById("questTotal").textContent =
+    total > 0 ? `지금까지 총 ${total}개의 퀘스트를 수행했어요 👏` : "";
+}
+
+function renderQuestWeek() {
+  const done = getQuestDone();
+  const dows = ["일","월","화","수","목","금","토"];
+  const today = todayStr();
+  let html = "";
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const key = dateKey(d), on = !!done[key], isToday = key === today;
+    html += `<div class="qw-day">
+      <div class="qw-dot ${on ? "on" : ""} ${isToday ? "today" : ""}">${on ? "✓" : ""}</div>
+      <div class="qw-label">${dows[d.getDay()]}</div></div>`;
+  }
+  document.getElementById("questWeek").innerHTML = html;
+}
+
+function completeQuest(photo) {
+  const done = getQuestDone();
+  const today = todayStr();
+  const prev = done[today] || {};
+  const firstTimeToday = !done[today];
+  done[today] = { photo: photo !== undefined ? photo : (prev.photo || ""), ts: prev.ts || Date.now() };
+  const ok = setQuestDone(done);
+  if (!ok && photo) { done[today].photo = ""; setQuestDone(done); toast("사진은 용량 때문에 저장 못 했어요 😢 완료는 기록됐어요"); }
+  const st = questStreak();
+  renderQuest();
+  const qmd = document.getElementById("questMenuDesc");
+  if (qmd) qmd.textContent = st > 1 ? `오늘 완료! 🔥 ${st}일 연속` : "오늘 완료! 🎉 내일 또 만나요";
+  if (firstTimeToday) toast(st > 1 ? `🔥 ${st}일 연속! 오늘도 해냈어요` : "🎉 오늘의 퀘스트 완료!");
+  else if (photo) toast("📷 인증샷을 남겼어요!");
+}
+
+// 인증샷 업로드 → 리사이즈 후 저장 (기기에만 저장)
+document.getElementById("questPhotoInput").addEventListener("change", (e) => {
+  const file = e.target.files && e.target.files[0];
+  e.target.value = "";
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const max = 380;
+      let w = img.width, h = img.height;
+      const scale = Math.min(1, max / Math.max(w, h));
+      w = Math.round(w * scale); h = Math.round(h * scale);
+      const cv = document.createElement("canvas");
+      cv.width = w; cv.height = h;
+      cv.getContext("2d").drawImage(img, 0, 0, w, h);
+      completeQuest(cv.toDataURL("image/jpeg", 0.6));
+    };
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+/* =========================================================
    토스트
    ========================================================= */
 let toastTimer;
@@ -1458,7 +1757,7 @@ function toast(msg) {
 (function init() {
   const ctx = applyBackground();
   document.getElementById("welcomeChar").src = "welcome-hero.png";
-  if (STORE.name && STORE.region) go("home");
+  if (STORE.name) go("home");
   else {
     document.getElementById("welcome").classList.add("active");
     document.getElementById("skyDecor").style.display = "none"; // 웰컴 배경 장식 숨김
